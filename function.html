@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>중3 이차함수 그래프 개형 탐구기</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --sub: #475569;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --accent: #e11d48;
+      --accent-light: #fff1f2;
+      --green: #059669;
+      --purple: #7c3aed;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      background: var(--card);
+      padding: 18px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    header h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    header p {
+      font-size: 0.92rem;
+      color: var(--sub);
+      margin-top: 2px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      color: var(--sub);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .tab-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 920px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 620px;
+      margin: 0 auto;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      cursor: crosshair;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: var(--sub);
+      justify-content: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .line-sample {
+      width: 24px;
+      height: 3px;
+      display: inline-block;
+    }
+
+    .line-base {
+      border-top: 2.5px dashed #64748b;
+    }
+
+    .line-current {
+      background: var(--primary);
+      height: 3.5px;
+      border-radius: 2px;
+    }
+
+    .line-axis {
+      border-top: 2px dashed var(--accent);
+    }
+
+    .eq-box {
+      background: var(--primary-light);
+      border: 1.5px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .eq-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .eq-display {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #1e3a8a;
+      font-family: 'Cambria Math', 'Times New Roman', serif;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .control-group {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      transition: opacity 0.2s;
+    }
+
+    .control-group.disabled {
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .param-title {
+      font-weight: 800;
+      font-size: 1.02rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.78rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .badge-a { background: #ede9fe; color: var(--purple); }
+    .badge-p { background: #ffe4e6; color: var(--accent); }
+    .badge-q { background: #d1fae5; color: var(--green); }
+
+    .val-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .step-btn:hover { background: #e2e8f0; }
+
+    .param-val {
+      min-width: 48px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--primary);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--primary);
+      height: 8px;
+      cursor: pointer;
+    }
+
+    .hint-text {
+      font-size: 0.8rem;
+      color: var(--sub);
+      margin-top: 6px;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .btn-secondary {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover { background: #f1f5f9; }
+
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.93rem;
+    }
+
+    .summary-table th, .summary-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .summary-table th {
+      background: #f1f5f9;
+      width: 34%;
+      color: var(--sub);
+      font-weight: 700;
+    }
+
+    .summary-table td {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .highlight-red { color: var(--accent); }
+    .highlight-green { color: var(--green); }
+    .highlight-purple { color: var(--purple); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>이차함수 그래프 개형 탐구기 (중3 수업용)</h1>
+        <p>기준 그래프 <strong>y = x²</strong>과 비교하며 평행이동 및 폭·볼록 방향을 확인하세요. (슬라이더 위에서 마우스 휠 사용 가능)</p>
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" data-mode="q">1단계: y = x² + q</button>
+        <button class="tab-btn" data-mode="p">2단계: y = (x - p)²</button>
+        <button class="tab-btn" data-mode="apq">3단계: y = a(x - p)² + q</button>
+      </div>
+    </header>
+
+    <div class="main-grid">
+      <div class="card">
+        <div class="canvas-wrap">
+          <canvas id="graphCanvas" width="700" height="700"></canvas>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><span class="line-sample line-base"></span> 기준 그래프: y = x²</div>
+          <div class="legend-item"><span class="line-sample line-current"></span> 현재 그래프</div>
+          <div class="legend-item"><span class="line-sample line-axis"></span> 축의 방정식 (x = p)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="eq-box">
+          <div class="eq-label" id="modeTitle">1단계: y축 방향 평행이동</div>
+          <div class="eq-display" id="eqDisplay">y = x²</div>
+        </div>
+
+        <div class="controls">
+          <div class="control-group disabled" id="group-a">
+            <div class="control-header">
+              <div class="param-title">a 값 <span class="badge badge-a">볼록 방향 · 폭</span></div>
+              <div class="val-controls">
+                <button class="step-btn" onclick="changeParam('a', -0.5)">-</button>
+                <span class="param-val" id="val-a">1</span>
+                <button class="step-btn" onclick="changeParam('a', 0.5)">+</button>
+              </div>
+            </div>
+            <input type="range" id="slider-a" min="-3" max="3" step="0.5" value="1" />
+            <div class="hint-text">a > 0 아래로 볼록 / a < 0 위로 볼록 / |a|가 클수록 폭이 좁아짐 (0 제외)</div>
+          </div>
+
+          <div class="control-group disabled" id="group-p">
+            <div class="control-header">
+              <div class="param-title">p 값 <span class="badge badge-p">x축 방향 평행이동</span></div>
+              <div class="val-controls">
+                <button class="step-btn" onclick="changeParam('p', -1)">-</button>
+                <span class="param-val" id="val-p">0</span>
+                <button class="step-btn" onclick="changeParam('p', 1)">+</button>
+              </div>
+            </div>
+            <input type="range" id="slider-p" min="-5" max="5" step="1" value="0" />
+            <div class="hint-text">x축 방향으로 p만큼 이동 → 식에서는 (x - p)² 형태로 부호 주의!</div>
+          </div>
+
+          <div class="control-group" id="group-q">
+            <div class="control-header">
+              <div class="param-title">q 값 <span class="badge badge-q">y축 방향 평행이동</span></div>
+              <div class="val-controls">
+                <button class="step-btn" onclick="changeParam('q', -1)">-</button>
+                <span class="param-val" id="val-q">0</span>
+                <button class="step-btn" onclick="changeParam('q', 1)">+</button>
+              </div>
+            </div>
+            <input type="range" id="slider-q" min="-5" max="5" step="1" value="0" />
+            <div class="hint-text">y축 방향으로 q만큼 이동 → 꼭짓점의 y좌표가 q로 이동</div>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-secondary" onclick="resetParams()">초기화 (y = x²)</button>
+          <button class="btn-secondary" id="toggleBaseBtn" onclick="toggleBase()">기준 그래프 숨기기</button>
+        </div>
+
+        <table class="summary-table">
+          <tr>
+            <th>꼭짓점의 좌표</th>
+            <td id="info-vertex">(0, 0)</td>
+          </tr>
+          <tr>
+            <th>축의 방정식</th>
+            <td id="info-axis">x = 0 (y축)</td>
+          </tr>
+          <tr>
+            <th>그래프의 모양</th>
+            <td id="info-shape">아래로 볼록 (기준 그래프와 폭 동일)</td>
+          </tr>
+          <tr>
+            <th>평행이동 해석</th>
+            <td id="info-shift">이동 없음 (기본형)</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      mode: 'q',
+      a: 1,
+      p: 0,
+      q: 0,
+      showBase: true
+    };
+
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const sliderA = document.getElementById('slider-a');
+    const sliderP = document.getElementById('slider-p');
+    const sliderQ = document.getElementById('slider-q');
+
+    function setMode(mode) {
+      state.mode = mode;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+
+      const groupA = document.getElementById('group-a');
+      const groupP = document.getElementById('group-p');
+      const groupQ = document.getElementById('group-q');
+      const modeTitle = document.getElementById('modeTitle');
+
+      if (mode === 'q') {
+        state.a = 1;
+        state.p = 0;
+        groupA.classList.add('disabled');
+        groupP.classList.add('disabled');
+        groupQ.classList.remove('disabled');
+        modeTitle.textContent = '1단계: y = x² + q (y축 방향 평행이동)';
+      } else if (mode === 'p') {
+        state.a = 1;
+        state.q = 0;
+        groupA.classList.add('disabled');
+        groupP.classList.remove('disabled');
+        groupQ.classList.add('disabled');
+        modeTitle.textContent = '2단계: y = (x - p)² (x축 방향 평행이동)';
+      } else {
+        groupA.classList.remove('disabled');
+        groupP.classList.remove('disabled');
+        groupQ.classList.remove('disabled');
+        modeTitle.textContent = '3단계: y = a(x - p)² + q (표준형 종합 정리)';
+      }
+
+      syncInputs();
+      render();
+    }
+
+    function syncInputs() {
+      sliderA.value = state.a;
+      sliderP.value = state.p;
+      sliderQ.value = state.q;
+      document.getElementById('val-a').textContent = state.a;
+      document.getElementById('val-p').textContent = state.p;
+      document.getElementById('val-q').textContent = state.q;
+    }
+
+    function changeParam(param, delta) {
+      if (param === 'a') {
+        let next = Math.round((state.a + delta) * 10) / 10;
+        if (next === 0) next = delta > 0 ? 0.5 : -0.5;
+        if (next >= -3 && next <= 3) state.a = next;
+      } else if (param === 'p') {
+        let next = state.p + delta;
+        if (next >= -5 && next <= 5) state.p = next;
+      } else if (param === 'q') {
+        let next = state.q + delta;
+        if (next >= -5 && next <= 5) state.q = next;
+      }
+      syncInputs();
+      render();
+    }
+
+    function resetParams() {
+      state.a = 1;
+      state.p = 0;
+      state.q = 0;
+      syncInputs();
+      render();
+    }
+
+    function toggleBase() {
+      state.showBase = !state.showBase;
+      document.getElementById('toggleBaseBtn').textContent =
+        state.showBase ? '기준 그래프 숨기기' : '기준 그래프 보이기';
+      render();
+    }
+
+    sliderA.addEventListener('input', (e) => {
+      let val = parseFloat(e.target.value);
+      if (val === 0) {
+        val = state.a > 0 ? -0.5 : 0.5;
+        e.target.value = val;
+      }
+      state.a = val;
+      syncInputs();
+      render();
+    });
+
+    sliderP.addEventListener('input', (e) => {
+      state.p = parseFloat(e.target.value);
+      syncInputs();
+      render();
+    });
+
+    sliderQ.addEventListener('input', (e) => {
+      state.q = parseFloat(e.target.value);
+      syncInputs();
+      render();
+    });
+
+    [
+      { el: document.getElementById('group-a'), param: 'a', step: 0.5 },
+      { el: document.getElementById('group-p'), param: 'p', step: 1 },
+      { el: document.getElementById('group-q'), param: 'q', step: 1 }
+    ].forEach(({ el, param, step }) => {
+      el.addEventListener('wheel', (e) => {
+        if (el.classList.contains('disabled')) return;
+        e.preventDefault();
+        const dir = e.deltaY < 0 ? 1 : -1;
+        changeParam(param, dir * step);
+      }, { passive: false });
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => setMode(btn.dataset.mode));
+    });
+
+    function formatEquation() {
+      const { a, p, q } = state;
+      let aStr = '';
+      if (a === -1) aStr = '-';
+      else if (a !== 1) aStr = `${a}`;
+
+      let xPart = '';
+      if (p === 0) {
+        xPart = 'x²';
+      } else if (p > 0) {
+        xPart = `(x - ${p})²`;
+      } else {
+        xPart = `(x + ${Math.abs(p)})²`;
+      }
+
+      let qPart = '';
+      if (q > 0) qPart = ` + ${q}`;
+      else if (q < 0) qPart = ` - ${Math.abs(q)}`;
+
+      return `y = ${aStr}${xPart}${qPart}`;
+    }
+
+    function updateSummary() {
+      const { a, p, q } = state;
+      document.getElementById('eqDisplay').textContent = formatEquation();
+      document.getElementById('info-vertex').innerHTML =
+        `(<span class="highlight-red">${p}</span>, <span class="highlight-green">${q}</span>)`;
+      document.getElementById('info-axis').innerHTML =
+        p === 0 ? `x = 0 (y축)` : `x = <span class="highlight-red">${p}</span>`;
+
+      const dirText = a > 0 ? '아래로 볼록' : '위로 볼록';
+      const absA = Math.abs(a);
+      let widthText = '기준 그래프와 폭 동일';
+      if (absA > 1) widthText = '기준 그래프보다 폭이 좁아짐';
+      else if (absA < 1) widthText = '기준 그래프보다 폭이 넓어짐';
+
+      document.getElementById('info-shape').innerHTML =
+        `<span class="highlight-purple">${dirText}</span> (${widthText})`;
+
+      const shifts = [];
+      if (p !== 0) shifts.push(`x축 방향으로 <span class="highlight-red">${p}</span>만큼`);
+      if (q !== 0) shifts.push(`y축 방향으로 <span class="highlight-green">${q}</span>만큼`);
+
+      if (shifts.length === 0) {
+        document.getElementById('info-shift').textContent =
+          a === 1 ? '이동 없음 (기준 그래프와 일치)' : `y = ${a}x² 그래프 (평행이동 없음)`;
+      } else {
+        const baseName = a === 1 ? 'y = x²' : (a === -1 ? 'y = -x²' : `y = ${a}x²`);
+        document.getElementById('info-shift').innerHTML =
+          `${baseName}의 그래프를 ${shifts.join(', ')} 평행이동`;
+      }
+    }
+
+    function render() {
+      updateSummary();
+
+      const W = canvas.width;
+      const H = canvas.height;
+      const range = 8;
+      const scale = W / (range * 2);
+      const cx = W / 2;
+      const cy = H / 2;
+
+      const toPxX = x => cx + x * scale;
+      const toPxY = y => cy - y * scale;
+
+      ctx.clearRect(0, 0, W, H);
+
+      ctx.lineWidth = 1;
+      for (let i = -range; i <= range; i++) {
+        ctx.strokeStyle = i === 0 ? '#334155' : '#e2e8f0';
+        ctx.lineWidth = i === 0 ? 2 : 1;
+
+        ctx.beginPath();
+        ctx.moveTo(toPxX(i), 0);
+        ctx.lineTo(toPxX(i), H);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, toPxY(i));
+        ctx.lineTo(W, toPxY(i));
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#334155';
+      ctx.font = 'bold 15px sans-serif';
+      ctx.fillText('x', W - 20, cy - 10);
+      ctx.fillText('y', cx + 12, 22);
+      ctx.fillText('O', cx - 18, cy + 18);
+
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#64748b';
+      for (let i = -range + 1; i <= range - 1; i++) {
+        if (i === 0) continue;
+        ctx.fillText(i, toPxX(i) - (i < 0 ? 8 : 4), cy + 16);
+        ctx.fillText(i, cx + 8, toPxY(i) + 4);
+      }
+
+      if (state.p !== 0) {
+        ctx.save();
+        ctx.strokeStyle = '#e11d48';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(toPxX(state.p), 0);
+        ctx.lineTo(toPxX(state.p), H);
+        ctx.stroke();
+
+        ctx.fillStyle = '#e11d48';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.fillText(`축: x = ${state.p}`, toPxX(state.p) + 6, 26);
+        ctx.restore();
+      }
+
+      if (state.showBase) {
+        ctx.save();
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([7, 6]);
+        ctx.beginPath();
+        let started = false;
+        for (let px = 0; px <= W; px += 2) {
+          const x = (px - cx) / scale;
+          const y = x * x;
+          const py = toPxY(y);
+          if (py >= -50 && py <= H + 50) {
+            if (!started) { ctx.moveTo(px, py); started = true; }
+            else ctx.lineTo(px, py);
+          }
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.save();
+      ctx.strokeStyle = '#2563eb';
+      ctx.lineWidth = 3.8;
+      ctx.beginPath();
+      let started = false;
+      for (let px = 0; px <= W; px += 1.5) {
+        const x = (px - cx) / scale;
+        const y = state.a * Math.pow(x - state.p, 2) + state.q;
+        const py = toPxY(y);
+        if (py >= -100 && py <= H + 100) {
+          if (!started) { ctx.moveTo(px, py); started = true; }
+          else ctx.lineTo(px, py);
+        } else {
+          started = false;
+        }
+      }
+      ctx.stroke();
+      ctx.restore();
+
+      const vx = toPxX(state.p);
+      const vy = toPxY(state.q);
+
+      if (state.p !== 0 || state.q !== 0) {
+        ctx.save();
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 1.8;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(vx, cy);
+        ctx.lineTo(vx, vy);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      ctx.fillStyle = '#e11d48';
+      ctx.beginPath();
+      ctx.arc(vx, vy, 6.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const label = `꼭짓점 (${state.p}, ${state.q})`;
+      ctx.font = 'bold 14px sans-serif';
+      const textWidth = ctx.measureText(label).width;
+      const boxX = Math.min(Math.max(vx + 10, 10), W - textWidth - 22);
+      const boxY = state.a > 0 ? Math.min(vy + 24, H - 12) : Math.max(vy - 12, 24);
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+      ctx.fillRect(boxX - 4, boxY - 15, textWidth + 10, 21);
+      ctx.fillStyle = '#be123c';
+      ctx.fillText(label, boxX, boxY);
+    }
+
+    setMode('q');
+  </script>
+</body>
+</html>
