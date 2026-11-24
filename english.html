@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>문장 실험실</title>
+<style>
+*{box-sizing:border-box}
+:root{color-scheme:light;--ink:#172b26;--green:#17634d;--paper:#f5f4eb;--line:#dedfd3;--footer:116px}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,sans-serif;padding-bottom:calc(var(--footer) + 28px)}
+main,.footer-inner{width:min(1080px,calc(100% - 40px));margin:auto}
+header{display:flex;align-items:center;gap:12px;padding:17px 0 13px}
+.mark{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:#dcedde;font-size:23px}
+.download{margin-left:auto;color:var(--green);font-size:13px;font-weight:700;text-underline-offset:3px}h1,h2,p{margin:0}h1{font-size:24px;letter-spacing:-.06em}h2{font-size:19px;letter-spacing:-.04em}
+.panel{background:#fffdf7;border:1px solid var(--line);border-radius:22px}
+.preview{background:#173e34;color:#fff9e9;padding:17px 26px;margin-bottom:14px}
+.preview p{color:#d0e7da;font-size:14px;font-weight:650}
+#sentence{display:block;font:700 clamp(24px,3.7vw,39px)/1.18 Georgia,serif;margin-top:8px;overflow-wrap:anywhere}
+.scene-panel{padding:16px;margin-bottom:14px}
+.scene-head,.board-head,.options{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.scene-head{padding:0 4px 12px}
+#status{font-size:13px;font-weight:750;border-radius:30px;padding:4px 11px;background:#e1f0e3;color:#205a44}
+#status[data-state=marked]{background:#fff0c9;color:#684a16}
+#status[data-state=empty]{visibility:hidden}
+.scene{position:relative;isolation:isolate;overflow:hidden;height:145px;border-radius:15px;background:linear-gradient(#cbe7ed 0 62%,#badbb1 62%);display:grid;place-items:center}
+.scene::before,.scene::after{content:"";position:absolute;z-index:-1;width:80%;height:100%;border-radius:50%;bottom:-65%;background:#91be8c;transform:rotate(-8deg);left:-10%}
+.scene::after{left:43%;background:#9cc693;transform:rotate(8deg)}
+.scene.empty{background:#edf0e8}.scene.empty::before,.scene.empty::after{display:none}
+.scene.empty .art{visibility:hidden}
+.sun{position:absolute;right:13%;top:17%;width:39px;height:39px;border-radius:50%;background:#ffe39b;box-shadow:0 0 0 9px #ffe39b55}
+.scene[data-example]:not([data-example="park"]) .sun{display:none}
+.scene[data-example]:not([data-example="park"]) .tree{font-size:32px;opacity:.7}
+.scene[data-example="library"]:not(.empty){background:linear-gradient(#efdeba 0 69%,#d3ae81 69%)}
+.scene[data-example="library"]::before,.scene[data-example="library"]::after,.scene[data-example="home"]::before,.scene[data-example="home"]::after,.scene[data-example="school"]::before,.scene[data-example="school"]::after{display:none}
+.scene[data-example="home"]:not(.empty){background:linear-gradient(#f3dfcc 0 69%,#d9b6a4 69%)}
+.scene[data-example="school"]:not(.empty){background:linear-gradient(#e1e5f5 0 69%,#bbc7dd 69%)}
+.scene[data-example="beach"]:not(.empty){background:linear-gradient(#b9e6ee 0 48%,#9ed5dc 48% 65%,#f3d795 65%)}
+.scene[data-example="beach"]::before,.scene[data-example="beach"]::after{background:#e5c779}
+.tree{position:absolute;bottom:26%;left:9%;font-size:45px}.tree.right{left:auto;right:9%;font-size:53px}
+.act{display:flex;align-items:center;gap:clamp(8px,5vw,52px);padding-top:23px;font-size:clamp(28px,6vw,55px);white-space:nowrap}
+.camera{font-size:.64em;position:relative}
+.camera.flash::after{content:"✦";position:absolute;left:65%;top:-37%;font-size:1.45em;color:#fff6a9;text-shadow:0 0 8px #fff;animation:flash .65s both}
+@keyframes flash{0%,100%{opacity:0;transform:scale(.4)}30%{opacity:1;transform:scale(1.3)}}
+#meaning{min-height:26px;padding:9px 4px 0;font-size:14px;color:#426255;font-weight:650}
+.board{padding:16px 20px}.hint{font-size:13px;color:#50675e;margin:3px 0 12px}
+button{font:inherit;color:inherit;cursor:pointer}
+.board-actions{display:flex;flex-wrap:wrap;gap:6px}.reset,.move,.option{border:1px solid #d0d8cc;border-radius:10px;padding:5px 12px;background:#fffdf7;font-size:13px;font-weight:700;min-height:36px}
+.next{background:var(--green);border-color:var(--green);color:#fff}
+button:focus-visible{outline:3px solid #17634d;outline-offset:3px}
+button:disabled{opacity:.42;cursor:default}
+.options{justify-content:flex-start;column-gap:22px;margin-bottom:13px}
+.option-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.option-group b{font-size:13px;margin-right:4px}
+.option[aria-pressed=true]{background:#dcedde;border-color:#a9c9b2;color:#174c36}
+.cards{display:flex;flex-wrap:wrap;gap:9px;border:1px dashed #bdcabc;border-radius:13px;padding:10px;background:#f2f5eb;min-height:69px}
+.card{position:relative;border:1px solid #a7bead;border-bottom-width:3px;border-radius:9px;background:#fffdf7;padding:8px 12px;font:700 17px/1.25 system-ui,sans-serif;min-height:46px;touch-action:none;user-select:none;cursor:grab}
+.card[aria-pressed=true]{outline:2px solid #17634d;outline-offset:2px}
+.card.error{background:#ffe2dd;border-color:#c45c54;color:#842f2b}
+.card.dragging{opacity:.45;cursor:grabbing}
+.card.before::before,.card.after::after{content:"";position:absolute;background:#17634d;width:4px;top:0;bottom:0;border-radius:5px}
+.card.before::before{left:-7px}.card.after::after{right:-7px}
+.controls{display:flex;gap:6px;margin-top:10px}
+footer{position:fixed;z-index:2;inset:auto 0 0;background:#153e34;color:#fff9e9;padding:12px 0 calc(12px + env(safe-area-inset-bottom));box-shadow:0 -5px 22px #14362c1b}
+footer h2{font-size:16px;margin-bottom:5px;color:#daf2c9}
+.questions{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px}
+.questions p{display:flex;gap:8px}.questions b{color:#c5e9aa;flex:none}
+@media(max-width:660px){main,.footer-inner{width:calc(100% - 24px)}.questions{grid-template-columns:1fr;gap:4px;font-size:13px}.scene{height:125px}.tree{font-size:33px}.tree.right{font-size:38px}.preview{padding:17px}.board{padding:14px}}
+@media(prefers-reduced-motion:reduce){.camera.flash::after{animation:none;display:none}}
+</style>
+<main>
+<header><span class="mark" aria-hidden="true">▤</span><h1>문장 실험실</h1><a class="download" href="sentence-lab.html" download="sentence-lab.html">HTML 파일 받기</a></header>
+<section class="panel preview" aria-label="지금 만든 문장">
+<p>지금 만든 문장</p><output id="sentence" lang="en" aria-live="polite"></output>
+</section>
+<section class="panel scene-panel" aria-labelledby="scene-title">
+<div class="scene-head"><h2 id="scene-title">문장 속 장면</h2><span id="status" role="status"></span></div>
+<div id="scene" class="scene" aria-hidden="true">
+<div class="art"><div class="sun"></div><div class="tree">🌳</div><div class="tree right">🌳</div>
+<div class="act"><span id="actor"></span><span id="camera" class="camera"></span><span id="target"></span></div></div>
+</div>
+<p id="meaning"></p>
+</section>
+<section class="panel board" aria-labelledby="board-title">
+<div class="board-head"><h2 id="board-title">카드 놓기</h2><div class="board-actions"><button class="reset" id="reset">다시 섞기</button><button class="reset next" id="next">다른 문장</button></div></div>
+<p class="hint" id="hint">카드를 끌어서 옮겨 보세요. 카드를 고른 뒤 이동 버튼이나 방향키를 써도 돼요.</p>
+<div class="options">
+<div class="option-group" role="group" aria-label="시제"><b>시제</b><button class="option" data-tense="present">현재</button><button class="option" data-tense="past">과거</button><button class="option" data-tense="future">미래</button></div>
+<div class="option-group" role="group" aria-labelledby="number-label"><b id="number-label">소녀 카드</b><button class="option" data-number="one">단수</button><button class="option" data-number="many">복수</button></div>
+</div>
+<div class="cards" id="cards" role="group" aria-label="영어 카드" aria-describedby="hint"></div>
+<div class="controls"><button class="move" id="left">← 왼쪽으로</button><button class="move" id="right">오른쪽으로 →</button></div>
+</section>
+</main>
+<footer><div class="footer-inner">
+<h2>생각해보기</h2>
+<div class="questions">
+<p><b>Q1.</b><span>동사 위치를 주어 앞으로 옮기면 문장의 성격이 어떻게 바뀌나요?</span></p>
+<p><b>Q2.</b><span>장소와 시간이 함께 올 때, 어떤 순서일 때 가장 자연스러운 의미가 되나요?</span></p>
+</div>
+</div></footer>
+<script>
+"use strict";
+const byId = id => document.getElementById(id);
+const cards = byId("cards");
+const examples = [
+  {
+    scene: "park", scenery: "🌳", icon: "📷", label: "소녀 카드", reversible: true,
+    first: ["the girl", "the girls", "소녀가", "소녀들이", "👧"],
+    second: ["the boy", "소년을", "👦"],
+    reverse: ["소년이", "소녀를", "소녀들을"],
+    verb: ["photograph", "photographs", "photographed"],
+    place: ["in the park", "공원에서"],
+    time: ["every day", "매일"],
+    action: ["찍어요.", "찍었어요.", "찍을 거예요.", "찍을까요?"]
+  },
+  {
+    scene: "library", scenery: "📚", icon: "📖", label: "소년 카드",
+    first: ["the boy", "the boys", "소년이", "소년들이", "👦"],
+    second: ["a book", "책을", "📕"],
+    verb: ["read", "reads", "read"],
+    place: ["in the library", "도서관에서"],
+    time: ["every afternoon", "매일 오후에"],
+    action: ["읽어요.", "읽었어요.", "읽을 거예요.", "읽을까요?"]
+  },
+  {
+    scene: "beach", scenery: "🐚", icon: "🪣", label: "아이 카드",
+    first: ["the child", "the children", "아이가", "아이들이", "🧒"],
+    second: ["a sandcastle", "모래성을", "🏰"],
+    verb: ["build", "builds", "built"],
+    place: ["at the beach", "해변에서"],
+    time: ["every summer", "여름마다"],
+    action: ["만들어요.", "만들었어요.", "만들 거예요.", "만들까요?"]
+  },
+  {
+    scene: "home", scenery: "🪴", icon: "🥣", label: "요리사 카드",
+    first: ["the cook", "the cooks", "요리사가", "요리사들이", "🧑‍🍳"],
+    second: ["breakfast", "아침 식사를", "🍳"],
+    verb: ["make", "makes", "made"],
+    place: ["at home", "집에서"],
+    time: ["every morning", "매일 아침에"],
+    action: ["만들어요.", "만들었어요.", "만들 거예요.", "만들까요?"]
+  },
+  {
+    scene: "school", scenery: "🎵", icon: "🎤", label: "학생 카드",
+    first: ["the student", "the students", "학생이", "학생들이", "🧑"],
+    second: ["a song", "노래를", "🎶"],
+    verb: ["sing", "sings", "sang"],
+    place: ["at school", "학교에서"],
+    time: ["every Friday", "금요일마다"],
+    action: ["불러요.", "불렀어요.", "부를 거예요.", "부를까요?"]
+  }
+];
+const timeByTense = {past: ["yesterday", "어제"], future: ["tomorrow", "내일"]};
+const actionByTense = {present: 0, past: 1, future: 2};
+const initial = ["first", "verb", "second", "place", "time"];
+let exampleIndex = 0;
+let order = [], tense = "present", number = "one", selected = null, drag;
+let hasMoved = false;
+const example = () => examples[exampleIndex];
+
+function shuffle() {
+  const previous = order.join();
+  do {
+    order = tense === "future" ? [...initial, "will"] : [...initial];
+    for (let index = order.length - 1; index > 0; index--) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      [order[index], order[swap]] = [order[swap], order[index]];
+    }
+  } while (!evaluate().errors.length || order.join() === previous);
+  selected = null;
+  hasMoved = false;
+  render();
+}
+
+function patterns(first, second) {
+  const core = tense === "future" ? [first, "will", "verb", second] : [first, "verb", second];
+  const cores = [{core, question: false}];
+  if (tense === "future") cores.push({core: ["will", first, "verb", second], question: true});
+  return cores.flatMap(({core, question}) => [
+    {sequence: [...core, "place", "time"], question, marked: false},
+    {sequence: [...core, "time", "place"], question, marked: true},
+    {sequence: ["time", ...core, "place"], question, marked: false},
+    {sequence: ["place", ...core, "time"], question, marked: true}
+  ]);
+}
+
+function evaluate() {
+  const reversed = example().reversible && order.indexOf("second") < order.indexOf("first");
+  const [first, second] = reversed ? ["second", "first"] : ["first", "second"];
+  const candidates = patterns(first, second);
+  const mismatches = ({sequence}) => sequence.filter((id, index) => order[index] !== id);
+  const matching = candidates.find(candidate => mismatches(candidate).length === 0);
+  if (matching) return {...matching, first, second, errors: []};
+
+  // Tied repairs highlight all positions implicated by the closest arrangements.
+  const repairs = candidates.map(mismatches);
+  const closest = Math.min(...repairs.map(repair => repair.length));
+  return {first, second, errors: [...new Set(repairs.filter(repair => repair.length === closest).flat())]};
+}
+
+function words(subject) {
+  const sample = example();
+  const [base, singular, past] = sample.verb;
+  return {
+    first: sample.first[number === "one" ? 0 : 1],
+    second: sample.second[0], will: "will", place: sample.place[0],
+    time: (timeByTense[tense] ?? sample.time)[0],
+    verb: tense === "past" ? past :
+      tense === "future" || (subject === "first" && number === "many") ? base : singular
+  };
+}
+
+function render() {
+  const {first, second, errors, marked, question} = evaluate();
+  const labels = words(first);
+  const assembled = order.map(id => labels[id]).join(" ");
+  const comma = errors.length === 0 && ["time", "place"].includes(order[0]) && (question || order[0] === "place");
+  const line = comma ? assembled.replace(labels[order[0]], labels[order[0]] + ",") : assembled;
+  byId("sentence").textContent = line[0].toUpperCase() + line.slice(1) + (question ? "?" : ".");
+
+  cards.replaceChildren(...order.map(id => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.card = id;
+    button.lang = "en";
+    button.textContent = labels[id];
+    button.className = hasMoved && errors.includes(id) ? "card error" : "card";
+    return button;
+  }));
+
+  document.querySelectorAll("[data-tense], [data-number]").forEach(button => {
+    button.setAttribute("aria-pressed", button.dataset.tense === tense || button.dataset.number === number);
+  });
+  updateSelection();
+  const valid = errors.length === 0;
+  const sample = example();
+  const scene = byId("scene");
+  scene.dataset.example = sample.scene;
+  scene.classList.toggle("empty", !valid);
+  byId("number-label").textContent = sample.label;
+  byId("status").dataset.state = valid ? (marked ? "marked" : "natural") : "empty";
+  byId("status").textContent = valid ? (marked ? "가능한 어순 · 강조가 달라요" : "자연스러운 어순") : "";
+  byId("meaning").textContent = valid ? meaning(first, question) : "";
+  for (const detail of scene.querySelectorAll(".tree")) detail.textContent = sample.scenery;
+  const figures = {
+    first: sample.first[4].repeat(number === "one" ? 1 : 2),
+    second: sample.second[2]
+  };
+  byId("actor").textContent = figures[first];
+  byId("target").textContent = figures[second];
+  const camera = byId("camera");
+  camera.textContent = sample.icon + (question ? " ❔ →" : " →");
+  camera.classList.remove("flash");
+  if (valid && !question) {
+    void camera.offsetWidth;
+    camera.classList.add("flash");
+  }
+}
+
+function meaning(first, question) {
+  const sample = example();
+  const many = number === "many";
+  const subject = first === "first" ? sample.first[many ? 3 : 2] : sample.reverse[0];
+  const object = first === "first" ? sample.second[1] : sample.reverse[many ? 2 : 1];
+  const [, time] = timeByTense[tense] ?? sample.time;
+  return [time, sample.place[1], subject, object, sample.action[question ? 3 : actionByTense[tense]]].join(" ");
+}
+
+function updateSelection() {
+  for (const card of cards.children) card.setAttribute("aria-pressed", card.dataset.card === selected);
+  const index = order.indexOf(selected);
+  byId("left").disabled = index <= 0;
+  byId("right").disabled = index < 0 || index === order.length - 1;
+}
+
+function move(id, index, focus = false) {
+  if (index < 0 || index >= order.length || index === order.indexOf(id)) return;
+  order.splice(order.indexOf(id), 1);
+  order.splice(index, 0, id);
+  selected = id;
+  hasMoved = true;
+  render();
+  if (focus) cards.querySelector('[data-card="' + id + '"]').focus({preventScroll:true});
+}
+
+function clearDrop() {
+  for (const card of cards.children) card.classList.remove("before", "after", "dragging");
+}
+
+function dropPosition(x, y) {
+  const bounds = cards.getBoundingClientRect();
+  if (x < bounds.left || x > bounds.right || y < bounds.top || y > bounds.bottom) return null;
+  const options = [...cards.children].filter(card => card.dataset.card !== drag.id);
+  let nearest, distance = Infinity;
+  for (const card of options) {
+    const box = card.getBoundingClientRect();
+    const dx = Math.max(box.left - x, 0, x - box.right);
+    const dy = Math.max(box.top - y, 0, y - box.bottom);
+    const current = dx * dx + dy * dy;
+    if (current < distance) {
+      nearest = card;
+      distance = current;
+    }
+  }
+  const box = nearest.getBoundingClientRect();
+  const after = x > box.left + box.width / 2;
+  return {nearest, after, index: options.indexOf(nearest) + Number(after)};
+}
+
+cards.addEventListener("pointerdown", event => {
+  const card = event.target.closest(".card");
+  if (!card || !event.isPrimary || event.button !== 0) return;
+  drag = {id: card.dataset.card, pointer: event.pointerId, x: event.clientX, y: event.clientY, active:false};
+  card.setPointerCapture(event.pointerId);
+});
+cards.addEventListener("pointermove", event => {
+  if (!drag || event.pointerId !== drag.pointer) return;
+  if (!drag.active && Math.hypot(event.clientX - drag.x, event.clientY - drag.y) < 6) return;
+  drag.active = true;
+  clearDrop();
+  cards.querySelector('[data-card="' + drag.id + '"]').classList.add("dragging");
+  const position = dropPosition(event.clientX, event.clientY);
+  if (position) position.nearest.classList.add(position.after ? "after" : "before");
+});
+cards.addEventListener("pointerup", event => {
+  if (!drag || event.pointerId !== drag.pointer) return;
+  const {id, active} = drag;
+  const position = active ? dropPosition(event.clientX, event.clientY) : null;
+  drag = null;
+  clearDrop();
+  if (position) move(id, position.index);
+});
+for (const eventName of ["pointercancel", "lostpointercapture"]) {
+  cards.addEventListener(eventName, event => {
+    if (!drag || drag.pointer !== event.pointerId) return;
+    drag = null;
+    clearDrop();
+  });
+}
+cards.addEventListener("click", event => {
+  const card = event.target.closest(".card");
+  if (card) {
+    selected = card.dataset.card;
+    updateSelection();
+  }
+});
+cards.addEventListener("keydown", event => {
+  const card = event.target.closest(".card");
+  if (!card || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+  event.preventDefault();
+  const id = card.dataset.card;
+  move(id, order.indexOf(id) + (event.key === "ArrowLeft" ? -1 : 1), true);
+});
+byId("left").onclick = () => move(selected, order.indexOf(selected) - 1, true);
+byId("right").onclick = () => move(selected, order.indexOf(selected) + 1, true);
+byId("reset").onclick = shuffle;
+byId("next").onclick = () => {
+  exampleIndex = (exampleIndex + 1) % examples.length;
+  shuffle();
+};
+document.querySelectorAll("[data-tense]").forEach(button => {
+  button.onclick = () => {
+    const next = button.dataset.tense;
+    if (next === tense) return;
+    if (next === "future") order.splice(order.indexOf("verb"), 0, "will");
+    else if (tense === "future") order.splice(order.indexOf("will"), 1);
+    if (next !== "future" && selected === "will") selected = null;
+    tense = next;
+    if (!hasMoved && !evaluate().errors.length) shuffle();
+    else render();
+  };
+});
+document.querySelectorAll("[data-number]").forEach(button => {
+  button.onclick = () => {
+    number = button.dataset.number;
+    render();
+  };
+});
+new ResizeObserver(([entry]) => {
+  document.body.style.setProperty("--footer", entry.target.offsetHeight + "px");
+}).observe(document.querySelector("footer"));
+shuffle();
+</script>
+</html>
