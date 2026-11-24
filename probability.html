@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>조건부확률 실험실</title>
+<style>
+:root{color-scheme:light;--ink:#172d28;--muted:#4b625a;--line:#d8e3db;--green:#155746;--mint:#d9eee3;--yellow:#f8d97d}
+*{box-sizing:border-box}body{margin:0;background:#f4f6f0;color:var(--ink);font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;line-height:1.6}main,nav{max-width:1160px;margin:auto;padding:0 24px}header{border-bottom:1px solid var(--line)}nav{height:65px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.9rem}nav strong{font-size:1rem}nav a{color:var(--green);font-weight:700}.hero{margin:28px 0 20px;background:#143e33;color:#fff;border-radius:24px;padding:30px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px}.hero small{color:#b9dfce;font-weight:700}h1{font-size:clamp(2rem,5vw,3.45rem);letter-spacing:-.07em;line-height:1.1;margin:8px 0 14px}.hero p{margin:0;color:#e0eee7}.formula{font-family:Georgia,serif;font-size:clamp(1.2rem,3vw,1.85rem);display:flex;align-items:center;gap:12px;white-space:nowrap;background:#215345;padding:12px 22px;border-radius:14px}.fraction{display:inline-grid;text-align:center;line-height:1.38}.fraction span:first-child{border-bottom:1px solid currentColor}.columns{display:grid;grid-template-columns:1fr 1fr;gap:20px}.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:20px;min-width:0}h2{font-size:1.26rem;margin:0 0 8px;letter-spacing:-.04em}p{margin:0 0 12px}.hint,small{color:var(--muted)}.fields,.metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fields label{font-weight:700;font-size:.9rem}select{width:100%;margin-top:4px;border:1px solid #9eb3a9;border-radius:9px;padding:9px;background:white;color:var(--ink);font:inherit}.table-wrap{max-width:410px;margin:auto}table{width:100%;table-layout:fixed;text-align:center;border-spacing:4px;font-variant-numeric:tabular-nums}th{font-size:.82rem;color:var(--muted)}td{background:#eff2ee;color:#52645a;height:34px;border-radius:6px;font-size:.87rem}td.condition{background:var(--mint);color:#214d3f}td.both{background:var(--yellow);color:#382b0c;font-weight:750}td.latest{outline:2px solid #19392e;outline-offset:1px}.legend{display:flex;gap:9px;flex-wrap:wrap;margin:8px 0;font-size:.8rem}.legend span{border-radius:6px;padding:2px 8px}.key-b{background:var(--mint)}.key-both{background:var(--yellow)}.key-out{background:#eff2ee}.readout{color:var(--green);font-weight:700;margin:8px 0 0}.buttons{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}button{font:inherit;font-size:.88rem;font-weight:700;border:1px solid #adc0b5;background:white;color:var(--green);border-radius:9px;padding:8px 12px;cursor:pointer}button:hover{background:var(--mint)}button.primary{background:var(--green);color:white;border-color:var(--green)}button.primary:hover{background:#0a4232}:focus-visible{outline:3px solid #137bcb;outline-offset:3px}.metrics>div{background:#f1f6f2;border-radius:12px;padding:10px 13px}.metrics strong{font-size:1.45rem;display:block;line-height:1.4}.count{font-size:.85rem;margin:9px 0}.plot{width:100%;height:auto;display:block}.plot text{font:11px system-ui;fill:#4b625a}.plot .grid{stroke:#d8e3db}.plot .expected{stroke:#735719;stroke-width:2;stroke-dasharray:5 4}.plot .observed{fill:none;stroke:#155746;stroke-width:2.5}.plot circle{fill:#155746}details{padding:10px 0;border-top:1px solid var(--line)}summary{cursor:pointer;font-weight:700}details p{margin:8px 0 0;color:var(--muted)}footer{padding:0 0 22px;color:var(--muted);font-size:.83rem}@media(max-width:770px){.columns{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column;padding:24px}.card{padding:16px}main,nav{padding-inline:14px}}@media(max-width:370px){.fields,.metrics{gap:6px}button{padding:7px}}
+</style>
+</head>
+<body>
+<header><nav><strong>확률과 통계 · 주사위 실험</strong><a href="#activity">수업 활동 ↓</a></nav></header>
+<main>
+<section class="hero"><div><small>두 주사위로 배우는 조건부확률</small><h1>조건부확률 실험실</h1><p>사건 B가 일어났다는 사실을 알면, 사건 A의 확률은 어떻게 달라질까요?</p></div><div><div class="formula" aria-label="B가 주어졌을 때 A의 확률은 A와 B의 교집합의 확률을 B의 확률로 나눈 값"><span>P(A | B) =</span><span class="fraction"><span>P(A ∩ B)</span><span>P(B)</span></span></div><small>P(B) &gt; 0일 때</small></div></section>
+<div class="columns">
+<section class="card"><h2>표본공간 살펴보기</h2><p class="hint">공정한 두 주사위를 독립적으로 던집니다. 조건 B를 만족하는 칸 중에서 A도 만족하는 칸을 세어 보세요.</p>
+<div class="fields"><label>사건 A · 알고 싶은 사건<select id="event-a"></select></label><label>사건 B · 주어진 조건<select id="event-b"></select></label></div>
+<div class="table-wrap"><table id="space" aria-label="주사위의 가능한 순서쌍, 행은 첫째 주사위, 열은 둘째 주사위"></table></div>
+<div class="legend"><span class="key-out">B에 해당하지 않음</span><span class="key-b">B만</span><span class="key-both">A와 B 모두</span></div>
+<p class="readout" id="theory" aria-live="polite"></p><small id="unconditional"></small>
+</section>
+<section class="card"><h2>주사위 반복 실험</h2><p class="hint">같은 조건에서 실험을 누적하고, 관측 비율을 이론값과 비교해 보세요.</p>
+<div class="buttons"><button class="primary" data-roll="1">1회 던지기</button><button data-roll="100">+100회</button><button data-roll="1000">+1,000회</button><button id="reset">초기화</button></div>
+<div class="metrics"><div><small>관측 조건부확률</small><strong id="estimate">—</strong><small id="count-fraction"></small></div><div><small>이론 조건부확률</small><strong id="expected"></strong><small>36가지 순서쌍에서 계산</small></div></div>
+<p class="count" id="counts" role="status"></p><p class="count hint" id="latest"></p>
+<svg class="plot" id="trend" viewBox="0 0 460 174" role="img" aria-label="누적 시행 횟수에 따른 조건부 상대도수 그래프"></svg>
+<div class="legend"><span class="key-b">실선 · 관측값</span><span class="key-both">점선 · 이론값</span></div>
+</section>
+</div>
+<section class="card" id="activity"><h2>수업 활동</h2>
+<details><summary>예측하기 · 합이 7일 확률은 조건을 알면 어떻게 달라질까요?</summary><p>A를 ‘합이 7’, B를 ‘첫째 눈이 1 또는 2’로 두세요. 표에서 P(A)와 P(A | B)를 각각 구하세요. 두 확률은 각각 6/36, 2/12로 같습니다.</p></details>
+<details><summary>실험하기 · B를 ‘합이 6 이상’으로 바꾸고 비교해 보세요.</summary><p>표에서 이론값을 먼저 구하세요. B에 해당하는 칸은 26개, A와 B를 모두 만족하는 칸은 6개이므로 P(A | B)는 6/26입니다. +100회, +1,000회를 차례로 눌러 관측값이 어떻게 움직이는지 기록하세요. 시행이 늘어나면 관측값은 대체로 이론값에 가까워지지만, 매번 더 가까워지는 것은 아닙니다.</p></details>
+<details><summary>설명하기 · A와 B를 서로 바꾸면 확률이 같을까요?</summary><p>A를 ‘합이 6 이상’, B를 ‘합이 7’로 바꾸세요. 교집합은 여전히 6칸입니다. 이번에는 조건 B에 해당하는 칸도 6개이므로 조건부확률은 6/6입니다. 조건을 바꾸기 전의 6/26과 비교하고, 분모가 어떤 사건의 경우의 수인지 설명해 보세요.</p></details>
+</section>
+<footer>행은 첫째 주사위, 열은 둘째 주사위입니다. 사건을 바꿔도 같은 실험 기록으로 다시 계산합니다.</footer>
+</main>
+<script>
+const events = [
+  ['합이 7', (x,y) => x+y===7],
+  ['합이 6 이상', (x,y) => x+y>=6],
+  ['첫째 눈이 1 또는 2', x => x<=2],
+  ['첫째 눈이 짝수', x => x%2===0],
+  ['두 눈이 같음', (x,y) => x===y],
+  ['둘째 눈이 6', (x,y) => y===6]
+];
+const faces = [1,2,3,4,5,6];
+const pairs = faces.flatMap(x => faces.map(y => [x,y]));
+const $ = id => document.getElementById(id);
+const a = $('event-a'), b = $('event-b');
+for (const select of [a,b]) {
+  events.forEach(([label], i) => select.add(new Option(label,i)));
+  select.addEventListener('change', render);
+}
+b.value = '1';
+let latest = null;
+let total = 0;
+let counts = Array(36).fill(0);
+let history = [];
+const percent = value => (value*100).toFixed(1)+'%';
+const format = value => value.toLocaleString('ko-KR');
+function summarize(data, maskB, maskBoth) {
+  let condition = 0, both = 0;
+  data.forEach((n,i) => {if(maskB[i]) condition += n; if(maskBoth[i]) both += n;});
+  return [both,condition];
+}
+function roll(n) {
+  for(let i=0;i<n;i++) {
+    latest = Math.floor(Math.random()*36);
+    counts[latest]++;
+    total++;
+    if(n===1 || (i+1)%(n/10)===0) history.push([total,[...counts]]);
+  }
+  render();
+}
+document.querySelectorAll('[data-roll]').forEach(button => {
+  button.addEventListener('click', () => roll(Number(button.dataset.roll)));
+});
+$('reset').addEventListener('click', () => {
+  latest = null;
+  total = 0;
+  counts.fill(0);
+  history = [];
+  render();
+});
+function render() {
+  const maskA = pairs.map(pair => events[a.value][1](...pair));
+  const maskB = pairs.map(pair => events[b.value][1](...pair));
+  const maskBoth = maskA.map((yes,i) => yes && maskB[i]);
+  const [k,m] = summarize(pairs.map(() => 1),maskB,maskBoth);
+  const [hits,qualified] = summarize(counts,maskB,maskBoth);
+  $('space').innerHTML = '<thead><tr><th scope="col">①＼②</th>'+faces.map(y=>'<th scope="col">'+y+'</th>').join('')+'</tr></thead><tbody>'+
+    faces.map(x=>'<tr><th scope="row">'+x+'</th>'+faces.map(y=>{
+      const i=(x-1)*6+y-1;
+      const cls=maskBoth[i]?'both':maskB[i]?'condition':'';
+      const label=maskBoth[i]?'A와 B 모두':maskB[i]?'B만':'B에 해당하지 않음';
+      return '<td class="'+cls+(i===latest?' latest':'')+'" aria-label="('+x+', '+y+'), '+label+(i===latest?', 마지막 결과':'')+'">'+x+','+y+'</td>';
+    }).join('')+'</tr>').join('')+'</tbody>';
+  $('theory').textContent = 'P(A | B) = '+k+' / '+m+' ≈ '+percent(k/m);
+  const aCount=maskA.filter(Boolean).length;
+  $('unconditional').textContent='조건이 없을 때 P(A) = '+aCount+' / 36 ≈ '+percent(aCount/36);
+  $('estimate').textContent=qualified?percent(hits/qualified):'—';
+  $('count-fraction').textContent=qualified?format(hits)+' / '+format(qualified):'B가 관측되면 계산합니다';
+  $('expected').textContent=percent(k/m);
+  $('counts').textContent='전체 '+format(total)+'회 · B '+format(qualified)+'회 · A ∩ B '+format(hits)+'회';
+  $('latest').textContent=latest===null?'마지막 결과 · 아직 시행 전':'마지막 결과 · ('+pairs[latest].join(', ')+')';
+  draw(k/m,maskB,maskBoth);
+}
+function draw(expected, maskB, maskBoth) {
+  const right=443, left=47, top=14, height=119;
+  const y=value=>top+height*(1-value);
+  const x=n=>left+(right-left)*n/(total||1);
+  const points=history.flatMap(([n,data])=>{
+    const [hits,qualified]=summarize(data,maskB,maskBoth);
+    return qualified?[[x(n),y(hits/qualified)]]:[];
+  });
+  const grid=[0,.25,.5,.75,1].map(value=>'<line class="grid" x1="'+left+'" x2="'+right+'" y1="'+y(value)+'" y2="'+y(value)+'"/><text x="40" y="'+(y(value)+4)+'" text-anchor="end">'+(value*100)+'%</text>').join('');
+  const endpoint=points.at(-1);
+  $('trend').innerHTML=grid+'<line class="expected" x1="'+left+'" x2="'+right+'" y1="'+y(expected)+'" y2="'+y(expected)+'"/><polyline class="observed" points="'+points.map(point=>point.join(',')).join(' ')+'"/>'+
+    (endpoint?'<circle r="3.5" cx="'+endpoint[0]+'" cy="'+endpoint[1]+'"/>':'')+
+    '<text x="'+left+'" y="150" text-anchor="middle">0</text>'+(total?'<text x="'+right+'" y="150" text-anchor="end">'+format(total)+'</text>':'')+'<text x="245" y="167" text-anchor="middle">누적 시행 횟수</text>';
+}
+render();
+</script>
+</body>
+</html>
