@@ -25,16 +25,9 @@ canvas:active { cursor: grabbing; }
 button { font: inherit; font-size: .87rem; color: #e9f4ec; background: #253830; border: 1px solid #50695c; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
 button:hover { background: #385246; }
 button[aria-pressed="true"] { background: #d8ee91; border-color: #d8ee91; color: #162319; font-weight: 700; }
-button:focus-visible, summary:focus-visible { outline: 2px solid #e6ff95; outline-offset: 3px; }
+button:focus-visible { outline: 2px solid #e6ff95; outline-offset: 3px; }
 .spacer { flex: 1; }
 .help { font-size: .86rem; color: #b5c7bd; margin: 9px 0 24px; }
-section { border-top: 1px solid #34463e; padding-top: 17px; }
-h2 { font-size: 1.25rem; margin: 0 0 8px; }
-ol { line-height: 1.65; padding-left: 23px; }
-li + li { margin-top: 6px; }
-details { background: #1b2b25; border: 1px solid #3a5046; border-radius: 12px; padding: 12px 16px; }
-summary { cursor: pointer; font-weight: 700; color: #d8ee91; }
-details p { margin: 8px 0 0; }
 @media (max-width: 520px) { main { padding-top: 24px; } .spacer { display: none; } .view-label { top: 6px; left: 6px; } }
 </style>
 </head>
@@ -62,20 +55,6 @@ details p { margin: 8px 0 0; }
   </div>
 </div>
 <p class="help">마우스나 손가락으로 드래그 · 방향키로 회전 · 휠 또는 + / −로 확대·축소</p>
-<section aria-labelledby="questions">
-  <h2 id="questions">탐구 문제</h2>
-  <ol>
-    <li>가려진 부분을 포함하여 쌓기나무는 모두 몇 개인가요?</li>
-    <li>바닥에서 세 번째 층에는 쌓기나무가 몇 개인가요?</li>
-    <li>앞에서 보이는 칸과 오른쪽에서 보이는 칸은 각각 몇 개인가요? 겹쳐 보이는 나무는 한 칸으로 셉니다.</li>
-  </ol>
-  <p>모든 기둥은 바닥부터 빈칸 없이 쌓여 있습니다. 같은 층에 있는 나무는 같은 색입니다.</p>
-  <details>
-    <summary>정답 및 풀이</summary>
-    <p id="answers"></p>
-    <p>층별 개수는 그 층까지 닿는 기둥의 수입니다. 앞과 오른쪽에서 보이는 칸은 시선 방향으로 겹치는 기둥 중 가장 높은 기둥의 높이를 방향별로 더해 구합니다.</p>
-  </details>
-</section>
 </main>
 <script>
 'use strict';
@@ -91,21 +70,13 @@ const heights = [
 ];
 const palette = [[45, 57], [24, 64], [10, 63], [158, 38], [177, 46], [197, 57]];
 const cubes = [];
-const layers = palette.map(() => 0);
 for (const [z, row] of heights.entries()) {
   for (const [x, height] of row.entries()) {
     for (let y = 0; y < height; y++) {
       cubes.push([x, y, z]);
-      layers[y]++;
     }
   }
 }
-const sum = values => values.reduce((total, value) => total + value, 0);
-const frontCount = sum(heights[0].map((_, x) => Math.max(...heights.map(row => row[x]))));
-const rightCount = sum(heights.map(row => Math.max(...row)));
-document.querySelector('#answers').textContent =
-  `① ${cubes.length}개 (아래층부터 ${layers.join(' + ')}) · ② ${layers[2]}개 · ③ 앞 ${frontCount}칸, 오른쪽 ${rightCount}칸`;
-
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const spinButton = document.querySelector('#spin');
