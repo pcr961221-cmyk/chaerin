@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a18">
+<title>쌓기나무 · 3D 수학 탐구</title>
+<style>
+:root { color-scheme: dark; font-family: system-ui, "Malgun Gothic", sans-serif; background: #101a18; color: #f0f5ee; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { width: min(1080px, calc(100% - 36px)); margin: 0 auto; padding: 38px 0 48px; }
+header { border-bottom: 1px solid #34463e; padding-bottom: 22px; margin-bottom: 24px; }
+.eyebrow { color: #afddbe; font-size: .82rem; font-weight: 700; letter-spacing: .16em; margin: 0 0 8px; }
+h1 { font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.15; margin: 0 0 10px; letter-spacing: -.055em; }
+p { line-height: 1.6; }
+header p:last-child { color: #c1d0c6; margin: 0; }
+.viewer { border: 1px solid #3a5046; border-radius: 18px; overflow: hidden; background: #172521; }
+.stage { position: relative; aspect-ratio: 16 / 9; background: radial-gradient(ellipse at 50% 48%, #30483d, #15221f 77%); }
+canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+canvas:active { cursor: grabbing; }
+.stage:focus-within { outline: 2px solid #e6ff95; outline-offset: -3px; }
+.view-label { position: absolute; top: 12px; left: 14px; margin: 0; padding: 4px 10px; border-radius: 12px; background: #14231e; color: #e4efdf; font-size: .78rem; pointer-events: none; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px; border-top: 1px solid #3a5046; }
+button { font: inherit; font-size: .87rem; color: #e9f4ec; background: #253830; border: 1px solid #50695c; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+button:hover { background: #385246; }
+button[aria-pressed="true"] { background: #d8ee91; border-color: #d8ee91; color: #162319; font-weight: 700; }
+button:focus-visible, summary:focus-visible { outline: 2px solid #e6ff95; outline-offset: 3px; }
+.spacer { flex: 1; }
+.help { font-size: .86rem; color: #b5c7bd; margin: 9px 0 24px; }
+section { border-top: 1px solid #34463e; padding-top: 17px; }
+h2 { font-size: 1.25rem; margin: 0 0 8px; }
+ol { line-height: 1.65; padding-left: 23px; }
+li + li { margin-top: 6px; }
+details { background: #1b2b25; border: 1px solid #3a5046; border-radius: 12px; padding: 12px 16px; }
+summary { cursor: pointer; font-weight: 700; color: #d8ee91; }
+details p { margin: 8px 0 0; }
+@media (max-width: 520px) { main { padding-top: 24px; } .spacer { display: none; } .view-label { top: 6px; left: 6px; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <p class="eyebrow">고등학교 수학 · 공간도형</p>
+  <h1>쌓기나무 3D 탐구</h1>
+  <p>보이지 않는 나무까지 생각하며 입체를 여러 방향에서 관찰해 보세요.</p>
+</header>
+<div class="viewer">
+  <div class="stage">
+    <canvas tabindex="0" aria-label="쌓기나무 3D 모형. 방향키로 회전하고 더하기와 빼기 키로 확대 또는 축소할 수 있습니다."></canvas>
+    <p class="view-label" id="view-label">입체 보기</p>
+  </div>
+  <div class="controls" aria-label="모형 조작">
+    <button id="spin" aria-pressed="false">자동 회전</button>
+    <button data-view="top" aria-pressed="false">위</button>
+    <button data-view="front" aria-pressed="false">앞</button>
+    <button data-view="right" aria-pressed="false">오른쪽</button>
+    <span class="spacer"></span>
+    <button id="minus" aria-label="축소">−</button>
+    <button id="plus" aria-label="확대">+</button>
+    <button id="reset">초기 시점</button>
+  </div>
+</div>
+<p class="help">마우스나 손가락으로 드래그 · 방향키로 회전 · 휠 또는 + / −로 확대·축소</p>
+<section aria-labelledby="questions">
+  <h2 id="questions">탐구 문제</h2>
+  <ol>
+    <li>가려진 부분을 포함하여 쌓기나무는 모두 몇 개인가요?</li>
+    <li>바닥에서 세 번째 층에는 쌓기나무가 몇 개인가요?</li>
+    <li>앞에서 보이는 칸과 오른쪽에서 보이는 칸은 각각 몇 개인가요? 겹쳐 보이는 나무는 한 칸으로 셉니다.</li>
+  </ol>
+  <p>모든 기둥은 바닥부터 빈칸 없이 쌓여 있습니다. 같은 층에 있는 나무는 같은 색입니다.</p>
+  <details>
+    <summary>정답 및 풀이</summary>
+    <p id="answers"></p>
+    <p>층별 개수는 그 층까지 닿는 기둥의 수입니다. 앞과 오른쪽에서 보이는 칸은 시선 방향으로 겹치는 기둥 중 가장 높은 기둥의 높이를 방향별로 더해 구합니다.</p>
+  </details>
+</section>
+</main>
+<script>
+'use strict';
+
+const heights = [
+  [0, 2, 2, 3, 4, 3, 1, 0],
+  [1, 3, 4, 4, 5, 4, 3, 1],
+  [2, 4, 5, 6, 6, 5, 3, 2],
+  [2, 3, 5, 6, 5, 4, 4, 2],
+  [0, 2, 4, 5, 4, 5, 5, 3],
+  [0, 1, 2, 4, 3, 4, 3, 2],
+  [0, 0, 1, 2, 2, 3, 2, 0],
+];
+const palette = [[45, 57], [24, 64], [10, 63], [158, 38], [177, 46], [197, 57]];
+const cubes = [];
+const layers = palette.map(() => 0);
+for (const [z, row] of heights.entries()) {
+  for (const [x, height] of row.entries()) {
+    for (let y = 0; y < height; y++) {
+      cubes.push([x, y, z]);
+      layers[y]++;
+    }
+  }
+}
+const sum = values => values.reduce((total, value) => total + value, 0);
+const frontCount = sum(heights[0].map((_, x) => Math.max(...heights.map(row => row[x]))));
+const rightCount = sum(heights.map(row => Math.max(...row)));
+document.querySelector('#answers').textContent =
+  `① ${cubes.length}개 (아래층부터 ${layers.join(' + ')}) · ② ${layers[2]}개 · ③ 앞 ${frontCount}칸, 오른쪽 ${rightCount}칸`;
+
+const canvas = document.querySelector('canvas');
+const ctx = canvas.getContext('2d');
+const spinButton = document.querySelector('#spin');
+const viewLabel = document.querySelector('#view-label');
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const initial = { yaw: -0.62, pitch: 0.55 };
+const views = {
+  top: { yaw: 0, pitch: Math.PI / 2, label: '위에서 보기' },
+  front: { yaw: 0, pitch: 0, label: '앞에서 보기' },
+  right: { yaw: -Math.PI / 2, pitch: 0, label: '오른쪽에서 보기' },
+};
+const viewButtons = [...document.querySelectorAll('[data-view]')];
+let { yaw, pitch } = initial;
+let zoom = 1;
+let view = '';
+let spinning = !reducedMotion.matches;
+let pointer = null;
+let previousTime = 0;
+
+// Unit-cube faces, with vertices in the plane of each outward normal.
+const faces = [
+  [[1, 0, 0], [[1, 0, 0], [1, 0, 1], [1, 1, 1], [1, 1, 0]], 14],
+  [[-1, 0, 0], [[0, 0, 1], [0, 0, 0], [0, 1, 0], [0, 1, 1]], 14],
+  [[0, 0, 1], [[1, 0, 1], [0, 0, 1], [0, 1, 1], [1, 1, 1]], 5],
+  [[0, 0, -1], [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], 5],
+  [[0, 1, 0], [[0, 1, 0], [1, 1, 0], [1, 1, 1], [0, 1, 1]], 24],
+  [[0, -1, 0], [[0, 0, 1], [1, 0, 1], [1, 0, 0], [0, 0, 0]], 0],
+];
+const occupied = new Set(cubes.map(cube => cube.join(',')));
+const surface = cubes.flatMap(([x, y, z]) => faces
+  .filter(([[dx, dy, dz]]) => !occupied.has([x + dx, y + dy, z + dz].join(',')))
+  .map(([normal, corners, light]) => {
+    const [hue, saturation] = palette[y];
+    return {
+      normal,
+      center: [x + .5 + normal[0] / 2, y + .5 + normal[1] / 2, z + .5 + normal[2] / 2],
+      points: corners.map(([dx, dy, dz]) => [x + dx, y + dy, z + dz]),
+      color: `hsl(${hue} ${saturation}% ${41 + light}%)`,
+    };
+  }));
+
+function draw() {
+  const { width, height } = canvas;
+  if (!width || !height) return;
+  ctx.clearRect(0, 0, width, height);
+  const scale = Math.min(width / 14, height / 11.5) * zoom;
+  const sinYaw = Math.sin(yaw);
+  const cosYaw = Math.cos(yaw);
+  const sinPitch = Math.sin(pitch);
+  const cosPitch = Math.cos(pitch);
+  const direction = [-sinYaw * cosPitch, sinPitch, cosYaw * cosPitch];
+  const depth = ([x, y, z]) => x * direction[0] + y * direction[1] + z * direction[2];
+  function project([x, y, z]) {
+    x -= 4;
+    y -= 2.7;
+    z -= 3.5;
+    const forward = -sinYaw * x + cosYaw * z;
+    return [
+      width / 2 + scale * (cosYaw * x + sinYaw * z),
+      height / 2 + scale * (sinPitch * forward - cosPitch * y),
+    ];
+  }
+  function path(points) {
+    ctx.beginPath();
+    points.forEach((point, i) => {
+      const [x, y] = project(point);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+  }
+  if (pitch > .03) {
+    ctx.lineWidth = Math.max(1, scale * .018);
+    ctx.strokeStyle = '#66847755';
+    for (let x = -1; x <= 9; x++) {
+      path([[x, -.03, -1], [x, -.03, 8]]);
+      ctx.stroke();
+    }
+    for (let z = -1; z <= 8; z++) {
+      path([[-1, -.03, z], [9, -.03, z]]);
+      ctx.stroke();
+    }
+  }
+  ctx.strokeStyle = '#162922';
+  ctx.lineWidth = Math.max(1, scale * .025);
+  const visible = surface.filter(face => depth(face.normal) > 1e-8);
+  visible.sort((a, b) => depth(a.center) - depth(b.center));
+  for (const face of visible) {
+    path(face.points);
+    ctx.closePath();
+    ctx.fillStyle = face.color;
+    ctx.fill();
+    ctx.stroke();
+  }
+}
+
+function syncControls() {
+  spinButton.setAttribute('aria-pressed', spinning);
+  viewButtons.forEach(button => button.setAttribute('aria-pressed', view === button.dataset.view));
+  viewLabel.textContent = views[view]?.label ?? '입체 보기';
+}
+
+function selectView(name) {
+  view = name;
+  spinning = false;
+  ({ yaw, pitch } = views[name] ?? initial);
+  zoom = 1;
+  syncControls();
+  draw();
+}
+
+function rotate(horizontal, vertical) {
+  view = '';
+  spinning = false;
+  yaw += horizontal;
+  pitch = Math.max(0, Math.min(Math.PI / 2, pitch + vertical));
+  syncControls();
+  draw();
+}
+
+function changeZoom(factor) {
+  zoom = Math.max(.65, Math.min(2.1, zoom * factor));
+  draw();
+}
+
+spinButton.addEventListener('click', () => {
+  spinning = !spinning;
+  if (spinning) {
+    view = '';
+    if (pitch < .12 || pitch > 1.45) pitch = initial.pitch;
+  }
+  syncControls();
+  draw();
+});
+viewButtons.forEach(button => button.addEventListener('click', () => selectView(button.dataset.view)));
+document.querySelector('#reset').addEventListener('click', () => selectView(''));
+document.querySelector('#plus').addEventListener('click', () => changeZoom(1.15));
+document.querySelector('#minus').addEventListener('click', () => changeZoom(1 / 1.15));
+canvas.addEventListener('pointerdown', event => {
+  if (pointer || event.button !== 0) return;
+  pointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+  canvas.setPointerCapture(event.pointerId);
+  rotate(0, 0);
+});
+canvas.addEventListener('pointermove', event => {
+  if (event.pointerId !== pointer?.id) return;
+  rotate((event.clientX - pointer.x) * .009, (event.clientY - pointer.y) * .009);
+  pointer.x = event.clientX;
+  pointer.y = event.clientY;
+});
+canvas.addEventListener('lostpointercapture', event => {
+  if (event.pointerId === pointer?.id) pointer = null;
+});
+canvas.addEventListener('wheel', event => {
+  event.preventDefault();
+  changeZoom(Math.exp(-event.deltaY * .001));
+}, { passive: false });
+canvas.addEventListener('keydown', event => {
+  const arrows = { ArrowLeft: [-.11, 0], ArrowRight: [.11, 0], ArrowUp: [0, .11], ArrowDown: [0, -.11] };
+  if (arrows[event.key]) rotate(...arrows[event.key]);
+  else if (event.key === '+' || event.key === '=') changeZoom(1.15);
+  else if (event.key === '-') changeZoom(1 / 1.15);
+  else return;
+  event.preventDefault();
+});
+reducedMotion.addEventListener('change', event => {
+  if (event.matches) {
+    spinning = false;
+    syncControls();
+  }
+});
+new ResizeObserver(() => {
+  const bounds = canvas.getBoundingClientRect();
+  const ratio = devicePixelRatio || 1;
+  canvas.width = Math.round(bounds.width * ratio);
+  canvas.height = Math.round(bounds.height * ratio);
+  draw();
+}).observe(canvas);
+
+function animate(time) {
+  if (spinning && previousTime) {
+    yaw = (yaw + Math.min(time - previousTime, 50) * .00018) % (Math.PI * 2);
+    draw();
+  }
+  previousTime = time;
+  requestAnimationFrame(animate);
+}
+syncControls();
+requestAnimationFrame(animate);
+</script>
+</body>
+</html>
