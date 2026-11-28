@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f7fc">
+<title>중복순열 LAB – 색칠하기 실험실</title>
+<style>
+:root{--ink:#201b38;--muted:#625c76;--accent:#6344d0;--line:#e7e3f1;--soft:#f0ebff;--paper:#f7f7fc;color-scheme:light}
+*{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 system-ui,sans-serif} button,input,select,textarea{font:inherit;color:inherit} button,select{cursor:pointer} button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid #8a71e9;outline-offset:3px} button{background:white;border:1px solid var(--line);border-radius:10px;padding:8px 13px;font-weight:700;transition:background .18s,border-color .18s,transform .18s} button:hover{background:var(--soft);border-color:#c7b6f8} button:active{transform:translateY(1px)} button:disabled{opacity:.45;cursor:default} input,select,textarea{background:white;border:1px solid #dcd6eb;border-radius:9px;padding:8px 10px;max-width:100%} textarea{width:100%;resize:vertical} a{color:inherit} h1,h2,h3,p{margin:0} h2{font-size:22px;letter-spacing:-.045em} h3{font-size:16px} small,.muted{color:var(--muted)} [hidden]{display:none!important}
+header{background:#fff;border-bottom:1px solid var(--line)} .top{max-width:1280px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 28px}.brand{display:flex;align-items:center;gap:10px;font-weight:850}.mark{display:grid;place-items:center;width:36px;height:36px;background:var(--accent);color:white;border-radius:11px;font-size:19px}.modes,.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.modes{background:var(--paper);padding:3px;border-radius:11px}.modes button{border:0;background:none}.modes [aria-pressed=true]{background:white;color:var(--accent);box-shadow:0 1px 5px #28204918}
+main{max-width:1280px;margin:auto;padding:26px 28px 55px}.hero{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(112deg,#281b54,#49318c 72%,#6447bc);color:white;border-radius:21px;padding:35px 33px;margin-bottom:22px}.hero p{color:#eee8ff;margin-top:9px}.hero .eyebrow{color:#d9c9ff;font-size:12px;font-weight:800;letter-spacing:.12em;margin:0 0 9px}.hero h1{font-size:clamp(26px,4vw,44px);line-height:1.17;letter-spacing:-.055em}.motif{position:absolute;z-index:-1;right:6%;top:50%;transform:translateY(-50%) rotate(-14deg);display:grid;grid-template-columns:repeat(3,54px);gap:9px;opacity:.32}.motif i{height:54px;border-radius:13px;background:#b79aff;border:1px solid #ede4ff}.motif i:nth-child(2n){background:#ffffff35}.motif i:nth-child(3n){background:#dac8ff}
+.layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;align-items:start}.stack,.lab{display:grid;gap:16px;min-width:0}.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:0 3px 12px #32265706}.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:15px}.sectionhead p{font-size:13px;margin-top:4px}.label{display:block;font-size:13px;font-weight:750;margin:13px 0 6px}.settings select{width:100%}.totalBox{width:100%;margin-top:15px;padding:12px;border-radius:11px;background:var(--soft);color:#49309e}.totalBox output{display:block;font-size:25px;font-weight:850}.problem,.ruleGuide{background:#f8f5ff;border-radius:12px;padding:14px;margin-bottom:12px}.problem p,.ruleGuide p{margin-top:5px}.ruleExamples{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.ruleExamples span{border:1px solid var(--line);background:white;border-radius:8px;padding:4px 8px;font-size:13px}.steps{padding:8px}.steps button{display:flex;width:100%;align-items:center;gap:9px;text-align:left;border:0;padding:10px 9px;background:transparent}.steps button[aria-selected=true]{background:var(--soft);color:#5134b4}.stepicon{width:24px;text-align:center;font-size:17px}.tag{background:var(--soft);color:#5134b4;font-size:12px;font-weight:800;border-radius:20px;padding:4px 9px}.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.primary:hover{background:#5435be;border-color:#5435be}
+.palette{display:flex;gap:7px;flex-wrap:wrap}.palette button{display:flex;align-items:center;gap:6px;padding:6px 9px;font-size:13px}.palette [aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:var(--soft)} .chip{background:var(--tint);color:var(--fg);display:grid;place-items:center;border-radius:6px;font-weight:850}.palette .chip{width:24px;height:24px}.board{display:grid;grid-template-columns:repeat(var(--slots),minmax(0,1fr));gap:9px;margin:17px 0}.tile{display:grid;place-items:center;width:100%;min-height:clamp(55px,10vw,104px);padding:4px;border-radius:12px;background:var(--tint,#f9f7fe);color:var(--fg,#766991);font-size:clamp(18px,3vw,29px);border:1px dashed #cfc5e5}.tile.filled{border-style:solid;border-color:var(--fg)}.tile:hover{background:var(--tint,#efe8ff);filter:brightness(.97)}.slotlabel{text-align:center;font-size:12px;color:var(--muted);margin-top:5px}.boardactions{justify-content:flex-end}.feedback{background:#f7f5fc;border-radius:10px;padding:9px 12px;margin-top:12px;font-size:13px}.good{color:#15624b}.bad{color:#8d2946}.guess{margin:13px 0}.guess input{width:132px}.reveal{border-left:3px solid #956ff4;background:#f8f5ff;padding:11px 15px;margin-top:12px;border-radius:0 10px 10px 0}.reveal ol{padding-left:23px;margin:8px 0 0}.formula{font-size:clamp(17px,3vw,25px);font-weight:850;color:#49309e;overflow-wrap:anywhere}.choices .chip{min-height:44px;background:#f1ebff;color:#5134b4}
+.controls{background:#faf8ff;padding:10px;border-radius:10px;margin:10px 0}.controls label{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.cases{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:7px;margin:12px 0}.case{border:1px solid var(--line);border-radius:9px;padding:6px;background:#fff}.case.fail{opacity:.55}.case small{display:block;font-size:10px;margin-bottom:3px}.mini{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:2px}.mini .chip{height:22px;font-size:10px;border-radius:3px}.pager{justify-content:center}.treebox{overflow:auto;max-height:485px;background:#faf8ff;border:1px solid var(--line);border-radius:12px;margin-top:12px}.branch{animation:draw .42s both;stroke-dasharray:1;stroke-dashoffset:1;animation-delay:var(--delay)}@keyframes draw{to{stroke-dashoffset:0}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.branch{stroke-dashoffset:0}} .missionbuttons button[aria-pressed=true]{background:var(--soft);color:#5134b4}.missionbuttons{margin-bottom:12px} footer{margin-top:20px;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.stack{gap:10px}.settings{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.settings h2{width:100%}.settings label{flex:1;min-width:108px}.steps{display:flex;overflow:auto}.steps button{white-space:nowrap;width:auto}.hero{padding:24px;margin-bottom:14px}.motif{right:-35px}.layout{gap:12px}}
+@media(max-width:480px){main,.top{padding-left:12px;padding-right:12px}.card{padding:13px}.steps{padding:4px}.brand{font-size:13px}.mark{width:30px;height:30px}.modes button{font-size:12px;padding:6px}.board{gap:4px}.tile{border-radius:7px}.boardactions{justify-content:flex-start}.hero p{max-width:240px}}
+</style>
+</head>
+<body>
+<header><div class="top">
+ <div class="brand"><span class="mark" aria-hidden="true">∷</span> 중복순열 LAB</div>
+ <div class="row"><div class="modes" aria-label="수업 모드"><button id="student" aria-pressed="true">학생용</button><button id="teacher" aria-pressed="false">교사용</button></div><button id="fullscreen" hidden>전체 화면</button></div>
+</div></header>
+<main>
+ <div class="hero"><p class="eyebrow">확률과 통계 · 중복순열</p><h1>중복순열 LAB – 색칠하기 실험실</h1><p>색과 영역의 개수를 정해 경우의 수를 확인하고, 그 규칙으로 새 문제를 풀어 보세요.</p><div class="motif" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+ <div class="layout">
+  <aside class="stack">
+   <section class="card settings"><h2>실험 설정</h2><label><span class="label">색상 개수</span><select id="colors"></select></label><label><span class="label">영역 개수</span><select id="regions"></select></label><div class="totalBox"><span>전체 경우의 수</span><output id="totalCount" for="colors regions" aria-live="polite"></output></div></section>
+   <nav class="card steps" role="tablist" aria-label="탐구 활동">
+    <button role="tab" id="tab-paint" aria-selected="true" aria-controls="paint"><span class="stepicon" aria-hidden="true">▦</span> 자유 색칠</button>
+    <button role="tab" id="tab-principle" aria-selected="false" aria-controls="principle"><span class="stepicon" aria-hidden="true">×</span> 원리 탐구</button>
+    <button role="tab" id="tab-conditions" aria-selected="false" aria-controls="conditions"><span class="stepicon" aria-hidden="true">◇</span> 조건별 탐구</button>
+    <button role="tab" id="tab-tree" aria-selected="false" aria-controls="tree"><span class="stepicon" aria-hidden="true">⑂</span> 수형도</button>
+    <button role="tab" id="tab-missions" aria-selected="false" aria-controls="missions"><span class="stepicon" aria-hidden="true">◎</span> 탐구 미션</button>
+   </nav>
+  </aside>
+  <div class="lab">
+   <section class="card" id="paint" role="tabpanel" aria-labelledby="tab-paint">
+    <div class="sectionhead"><div><h2>자유롭게 색칠하기</h2><p class="muted">팔레트에서 색을 고른 뒤 영역을 눌러 보세요.</p></div><span class="tag" id="paintProgress"></span></div>
+    <div class="palette" id="palette" aria-label="색상 팔레트"></div><div class="board" id="board"></div>
+    <div class="row boardactions"><button id="clear">전체 초기화</button><button id="random">⤨ 무작위 색칠</button></div>
+    <div class="feedback" id="paintSummary" role="status"></div>
+   </section>
+   <section class="card" id="principle" role="tabpanel" aria-labelledby="tab-principle" hidden>
+    <div class="sectionhead"><div><h2>중복순열의 원리</h2><p class="muted">실험에서 확인한 경우의 수를 바탕으로 새로운 문제를 풀어 보세요.</p></div></div>
+    <div class="problem"><h3 id="problemTitle"></h3><p id="problemText" aria-live="polite"></p></div>
+    <div class="row"><button id="nextProblem">다른 문제</button><button id="principleHint" aria-expanded="false" aria-controls="principleHelp">힌트 보기</button></div>
+    <div id="principleHelp" hidden><p class="muted" id="hintText"></p><div class="board choices" id="choices"></div></div>
+    <form class="row guess" id="principleForm"><label>내 답 <input id="principleGuess" type="number" min="0" step="1" required></label><button class="primary">채점하기</button></form>
+    <div id="principleResult" class="reveal" aria-live="polite" hidden></div>
+   </section>
+   <section class="card" id="conditions" role="tabpanel" aria-labelledby="tab-conditions" hidden>
+    <div class="sectionhead"><div><h2>조건별 탐구</h2><p class="muted">전체 배열에 색칠 규칙을 하나 적용하면 몇 가지가 남을까요?</p></div></div>
+    <div class="ruleGuide"><h3>예시 · 이웃한 영역은 서로 다른 색</h3><p>바로 옆 칸끼리만 비교합니다. 한 칸을 건너 같은 색을 다시 써도 됩니다.</p>
+     <div class="ruleExamples"><span>A · B · A → 충족</span><span>A · A · B → 불충족</span></div>
+     <p><button id="tryAdjacent">이 조건 적용하기</button></p>
+    </div>
+    <div class="row controls"><label>색칠 규칙 <select id="condition"></select></label><label id="colorField">특정 색상 <select id="targetColor"></select></label><label id="kField"><span id="kLabel"></span><select id="k"></select></label></div>
+    <div id="conditionPaint" class="feedback" role="status"></div>
+    <p class="muted" id="caseCount" aria-live="polite"></p>
+    <button id="conditionExplain" aria-expanded="false" aria-controls="conditionResult">계산 과정 보기</button>
+    <div id="conditionResult" class="reveal" aria-live="polite" hidden></div>
+    <div class="row controls"><label><input type="checkbox" id="only"> 조건을 만족하는 결과만 보기</label><label>분류 <select id="group"><option value="none">번호순</option><option value="first">첫 번째 색상</option><option value="set">사용한 색상 조합</option></select></label><label id="groupField" hidden>그룹 <select id="groupValue"></select></label></div>
+    <div id="cases" class="cases"></div>
+    <div class="row pager"><button id="prev" aria-label="이전 페이지">‹ 이전</button><label>페이지 <input id="page" type="number" min="1" step="1" style="width:76px"></label><span id="pageTotal"></span><button id="next">다음 ›</button></div>
+   </section>
+   <section class="card" id="tree" role="tabpanel" aria-labelledby="tab-tree" hidden>
+    <div class="sectionhead"><div><h2>색칠 수형도</h2><p class="muted">각 가지는 색 하나를 뜻합니다. 진한 테두리는 내가 색칠한 경로입니다.</p></div></div>
+    <div class="row controls"><label>시작 가지 <select id="treeRoot"></select></label><label>표시 깊이 <select id="treeDepth"></select></label><button id="treeStep">한 단계 펼치기</button><button id="treePlay">다시 재생</button></div>
+    <div class="row"><button id="zoomOut" aria-label="축소">−</button><output id="zoomValue"></output><button id="zoomIn" aria-label="확대">+</button><span id="treeCondition" class="tag"></span></div>
+    <p id="treeNote" class="feedback"></p><div id="treeBox" class="treebox" tabindex="0" aria-label="수형도 스크롤 영역"></div>
+   </section>
+   <section class="card" id="missions" role="tabpanel" aria-labelledby="tab-missions" hidden>
+    <div class="sectionhead"><h2>탐구 미션</h2></div><div id="missionButtons" class="row missionbuttons"></div>
+    <h3 id="missionTitle"></h3><p id="missionPrompt" class="muted"></p>
+    <form id="missionForm"><label class="label" for="missionThought">나의 생각</label><textarea id="missionThought" rows="3" placeholder="실험에서 발견한 규칙과 그 이유를 적어 보세요."></textarea>
+     <div class="row guess"><label>예상값 <input id="missionGuess" type="number" min="0" step="1" required></label><button type="button" id="hint">힌트 1 보기</button><button class="primary">결과 확인하기</button></div>
+    </form><div id="hints" aria-live="polite"></div><div id="missionResult" class="reveal" aria-live="polite" hidden></div>
+   </section>
+  </div>
+ </div>
+ <footer>확률과 통계 · 위치가 다른 영역은 서로 구별합니다.</footer>
+</main>
+<script>
+'use strict';
+const palette = [
+ ['빨강','#ffdadd','#8c253a'], ['파랑','#dbe7ff','#244c9b'],
+ ['노랑','#ffedaf','#6a4900'], ['초록','#d2f3e1','#175a40'],
+ ['보라','#e9ddff','#593391'], ['주황','#ffe1ca','#893f13']
+];
+const conditions = [
+ ['any','아무런 조건 없이'], ['same','모든 영역이 같은 색'], ['different','모든 영역이 서로 다른 색'],
+ ['adjacent','이웃한 영역이 서로 다른 색'], ['two','적어도 두 가지 색 사용'],
+ ['exact','정확히 k가지 색 사용'], ['all','주어진 색을 모두 한 번 이상 사용'],
+ ['include','특정 색을 적어도 한 번 사용'], ['exclude','특정 색을 사용하지 않음'],
+ ['times','특정 색을 정확히 k번 사용'], ['endsSame','첫 번째와 마지막이 같은 색'],
+ ['endsDifferent','첫 번째와 마지막이 다른 색']
+];
+const names = Object.fromEntries(conditions);
+const usesColor = key => ['include','exclude','times'].includes(key);
+const usesK = key => ['exact','times'].includes(key);
+const letter = c => String.fromCharCode(65+c);
+const fmt = n => n.toLocaleString('ko-KR');
+const $ = id => document.getElementById(id);
+const seq = n => Array.from({length:n}, (_,i)=>i);
+const options = pairs => pairs.map(([id,label])=>`<option value="${id}">${label}</option>`).join('');
+const labelColor = c => `${letter(c)} · ${palette[c][0]}`;
+const tint = c => `--tint:${palette[c][1]};--fg:${palette[c][2]}`;
+const chip = c => `<span class="chip" style="${tint(c)}" title="${labelColor(c)}">${letter(c)}</span>`;
+const choose = (n,k) => {
+ if(k<0||k>n) return 0;
+ let value=1;
+ for(let i=1;i<=k;i++) value=value*(n-i+1)/i;
+ return value;
+};
+const onto = (r,k) => seq(k+1).reduce((sum,i)=>sum+(-1)**i*choose(k,i)*(k-i)**r,0);
+const product = values => values.reduce((a,b)=>a*b,1);
+const pop = Array.from({length:64},(_,mask)=>mask.toString(2).replaceAll('0','').length);
+function features(a) {
+ let mask=0, adjacent=false;
+ const counts=Array(6).fill(0);
+ a.forEach((c,i)=>{
+  mask|=1<<c;
+  counts[c]++;
+  if(i>0 && c===a[i-1]) adjacent=true;
+ });
+ return {mask, counts, distinct:pop[mask], adjacent, first:a[0], ends:a[0]===a.at(-1)};
+}
+function matches(f,key,n,r,c,k) {
+ switch(key){
+  case 'any': return true;
+  case 'same': return f.distinct===1;
+  case 'different': return f.distinct===r;
+  case 'adjacent': return !f.adjacent;
+  case 'two': return f.distinct>=2;
+  case 'exact': return f.distinct===k;
+  case 'all': return f.distinct===n;
+  case 'include': return f.counts[c]>0;
+  case 'exclude': return f.counts[c]===0;
+  case 'times': return f.counts[c]===k;
+  case 'endsSame': return f.ends;
+  case 'endsDifferent': return !f.ends;
+ }
+}
+function enumerate(n,r) {
+ return Array.from({length:n**r},(_,id)=>{
+  let value=id;
+  const a=Array(r);
+  for(let i=r-1;i>=0;i--){
+   a[i]=value%n;
+   value=Math.floor(value/n);
+  }
+  return {id:id+1,a,...features(a)};
+ });
+}
+function solution(key,n,r,c,k) {
+ const total=n**r, rest=(n-1)**r, color=labelColor(c);
+ const power=(base,exp)=>`${base}<sup>${exp}</sup>`;
+ const exactCount = q => {
+  if(q>n||q>r) return [0,'0',[`${q}가지 색을 모두 쓰려면 사용할 수 있는 색과 영역이 각각 ${q}개 이상이어야 합니다. 현재 색은 ${n}개, 영역은 ${r}개입니다.`]];
+  const ways=choose(n,q), surj=onto(r,q);
+  const inclusion=seq(q).map(i=>{
+   const term=`${choose(q,i)===1?'':choose(q,i)+' × '}${power(q-i,r)}`;
+   return i===0?term:`${i%2?' − ':' + '}${term}`;
+  }).join('');
+  return [ways*surj,`${ways} × ${surj}`,[
+   `쓸 색 ${q}가지를 고르는 방법은 조합  C(${n}, ${q}) = ${ways}가지입니다.`,
+   `선택한 색 안에서 모든 색을 한 번 이상 쓰도록, 빠진 색이 있는 배열을 포함·배제로 셉니다. 한 색을 뺀 배열을 빼고, 두 색이 함께 빠져 두 번 뺀 배열은 다시 더하는 방식입니다.`,
+   `선택한 색 조합 하나당 ${inclusion} = ${fmt(surj)}가지입니다.`
+  ]];
+ };
+ switch(key){
+  case 'any': return [total,power(n,r),[`각 영역에는 앞에서 어떤 색을 썼든 ${n}가지 색을 사용할 수 있습니다.`,`곱의 법칙으로 ${r}개 영역의 선택지를 곱합니다.`]];
+  case 'same': return [n,`${n} × 1`,[`첫 영역의 색을 ${n}가지 중에서 고릅니다.`,'나머지 모든 영역에는 첫 영역과 같은 색만 쓸 수 있습니다.']];
+  case 'different': {
+   if(r>n) return [0,'0',[`서로 다른 색이 ${r}가지 필요하지만 현재 색은 ${n}가지뿐입니다.`]];
+   const factors=seq(r).map(i=>n-i);
+   return [product(factors),factors.join(' × '),[`첫 영역에는 ${n}가지 색을 쓸 수 있습니다.`,'이후 영역마다 앞의 모든 영역에서 쓴 색을 제외합니다.']];
+  }
+  case 'adjacent': return [n*(n-1)**(r-1),`${n} × ${power(n-1,r-1)}`,[`첫 영역에는 ${n}가지 색을 쓸 수 있습니다.`,`이후 각 영역에서는 바로 왼쪽 색 하나를 제외하므로 ${n-1}가지씩 가능합니다.`]];
+  case 'two': return [total-n,`${fmt(total)} − ${n}`,[`전체 배열은 ${fmt(total)}가지입니다.`,`한 가지 색만 쓰는 배열은 색마다 하나씩 ${n}가지입니다. 이들을 전체에서 뺍니다.`]];
+  case 'exact': return exactCount(k);
+  case 'all': return exactCount(n);
+  case 'include': return [total-rest,`${fmt(total)} − ${fmt(rest)}`,[`전체 배열은 ${fmt(total)}가지입니다.`,`${color}을(를) 한 번도 쓰지 않으면 각 영역의 선택지는 ${n-1}가지입니다.`,`그 배열 ${power(n-1,r)} = ${fmt(rest)}가지를 전체에서 뺍니다.`]];
+  case 'exclude': return [rest,power(n-1,r),[`${color}을(를) 팔레트에서 제외합니다.`,`남은 ${n-1}가지 색을 각 영역에서 자유롭게 고릅니다.`]];
+  case 'times':
+   if(k>r) return [0,'0',[`지정한 색을 ${k}번 쓰려면 영역이 최소 ${k}개 필요합니다. 현재 영역은 ${r}개입니다.`]];
+   return [choose(r,k)*(n-1)**(r-k),`${choose(r,k)} × ${power(n-1,r-k)}`,[`${color}의 위치 ${k}곳을 먼저 고릅니다. C(${r}, ${k}) = ${choose(r,k)}가지입니다.`,`나머지 ${r-k}개 영역에는 다른 ${n-1}가지 색을 자유롭게 씁니다.`]];
+  case 'endsSame': return [n**(r-1),power(n,r-1),[`첫 영역에서 ${n}가지 색 중 하나를 고르면 마지막 색이 정해집니다.`,`가운데 ${r-2}개 영역에는 각각 ${n}가지 색을 쓸 수 있습니다.`]];
+  case 'endsDifferent': return [n**(r-1)*(n-1),`${power(n,r-1)} × ${n-1}`,[`마지막을 제외한 ${r-1}개 영역에는 각각 ${n}가지 색을 쓸 수 있습니다.`,`마지막 영역에서는 첫 색을 제외한 ${n-1}가지 중에서 고릅니다.`]];
+ }
+}
+
+let n=3,r=4,key='any',target=0,k=2,active=0,teacher=false;
+let painted=Array(r).fill(-1), rows=[], evaluated=[], passing=0;
+let tab='paint', page=1, zoom=1, depth=2, root='all', mission=0;
+let principleGuess=null, exactK=2, timesK=2;
+let problem=0, hintOpen=false, explanationOpen=false;
+const missionStates=Array.from({length:6},()=>({thought:'',guess:'',hints:0,answer:false}));
+const PAGE_SIZE=36;
+const parameter = condition => condition==='times'?timesK:exactK;
+const colorOptions = () => options(seq(n).map(c=>[c,labelColor(c)]));
+const description = (condition,c=target,q=k) => {
+ if(condition==='exact') return `정확히 ${q}가지 색 사용`;
+ if(condition==='times') return `${palette[c][0]}을(를) 정확히 ${q}번 사용`;
+ if(condition==='include') return `${palette[c][0]}을(를) 한 번 이상 사용`;
+ if(condition==='exclude') return `${palette[c][0]}을(를) 사용하지 않음`;
+ return names[condition];
+};
+const feedback = (guess,answer) => guess==null?'':`<p class="${guess===answer?'good':'bad'}">${guess===answer?'예상값과 일치합니다.':`예상값 ${fmt(guess)}와 다른 결과가 나왔어요. 계산 과정에서 이유를 찾아보세요.`}</p>`;
+const steps = entries => `<ol>${entries.map(line=>`<li>${line}</li>`).join('')}</ol>`;
+const renderSolution = (data,guess) => {
+ const [count,expression,explanation,unit='가지']=data;
+ return `${feedback(guess,count)}<p class="formula">${expression==='0'?'0':expression+' = '+fmt(count)}${unit}</p>${steps(explanation)}`;
+};
+function setPaint(index,value){
+ painted[index]=value;
+ renderPaint();
+ if(tab==='tree') renderTree();
+}
+function renderPaint(){
+ $('palette').innerHTML=seq(n).map(c=>`<button data-color="${c}" aria-pressed="${active===c}">${chip(c)} ${palette[c][0]}</button>`).join('')
+  +`<button data-color="-1" aria-pressed="${active===-1}">⌫ 지우개</button>`;
+ $('board').style.setProperty('--slots',r);
+ $('board').innerHTML=painted.map((c,i)=>`<div><button class="tile ${c<0?'':'filled'}" data-slot="${i}" ${c<0?'':`style="${tint(c)}"`} aria-label="${i+1}번 영역 · ${c<0?'비어 있음':labelColor(c)}">${c<0?'+':letter(c)}</button><div class="slotlabel">${i+1}번 영역</div></div>`).join('');
+ const done=painted.filter(c=>c>=0).length;
+ $('paintProgress').textContent=`${done} / ${r} 영역`;
+ if(done<r){
+  $('paintSummary').textContent='모든 영역을 색칠하면 사용한 색과 이웃한 영역의 색을 확인할 수 있어요.';
+  $('conditionPaint').className='feedback';
+  $('conditionPaint').textContent=`내 배열 · ${done}/${r} 영역을 색칠했습니다. 자유 색칠에서 배열을 완성해 보세요.`;
+  return;
+ }
+ const stats=features(painted), pass=matches(stats,key,n,r,target,k);
+ const usage=stats.counts.slice(0,n).flatMap((count,c)=>count?[`${labelColor(c)} ${count}회`]:[]);
+ $('paintSummary').innerHTML=`<strong>${stats.distinct}가지 색 사용</strong> · ${usage.join(', ')}<br>${stats.adjacent?'이웃한 영역 중 같은 색이 있습니다.':'이웃한 영역의 색이 모두 다릅니다.'}<br><span class="${pass?'good':'bad'}">${description(key)} · ${pass?'조건 충족':'조건 불충족'}</span>`;
+ $('conditionPaint').className=`feedback ${pass?'good':'bad'}`;
+ $('conditionPaint').innerHTML=`<strong>내 배열 ${painted.map(letter).join(' · ')}</strong> · ${pass?'조건을 만족합니다.':'조건을 만족하지 않습니다.'}`;
+}
+const problems = [
+ ['영역을 하나 늘리면', (n,r)=>[n,r+1]],
+ ['색을 하나 더 준비하면', (n,r)=>[n+1,r]],
+ ['영역을 하나 줄이면', (n,r)=>[n,r-1]]
+];
+function renderPrinciple(){
+ const [title,settings]=problems[problem];
+ const [colors,regions]=settings(n,r);
+ const count=colors**regions;
+ const show=teacher||principleGuess!==null;
+ $('problemTitle').textContent=title;
+ $('problemText').textContent=`현재 실험에서 ${problem===1?`색을 ${colors}가지로 늘리고 영역은 ${regions}개로 유지합니다.`:`색은 ${colors}가지 그대로 두고 영역을 ${regions}개로 바꿉니다.`} 같은 색을 여러 번 쓸 수 있을 때 가능한 색칠은 모두 몇 가지일까요?`;
+ $('principleHint').setAttribute('aria-expanded',hintOpen);
+ $('principleHint').textContent=hintOpen?'힌트 닫기':'힌트 보기';
+ $('principleHelp').hidden=!hintOpen;
+ $('hintText').textContent='앞에서 쓴 색을 다음 영역에도 사용할 수 있어요. 영역마다 선택지를 몇 가지씩 곱해야 할까요?';
+ $('choices').style.setProperty('--slots',Math.min(regions,4));
+ $('choices').innerHTML=seq(regions).map(i=>`<div><span class="chip">${colors}가지</span><div class="slotlabel">${i+1}번 영역</div></div>`).join('');
+ $('principleResult').hidden=!show;
+ $('principleForm').hidden=teacher;
+ if(!show) return;
+ const calculation=regions===1?`${colors} = ${colors}<sup>1</sup>`:`${Array(regions).fill(colors).join(' × ')} = ${colors}<sup>${regions}</sup> = ${fmt(count)}`;
+ $('principleResult').innerHTML=`${feedback(principleGuess,count)}<p class="formula">${calculation}가지</p>${steps([`각 영역에서 ${colors}가지 색 중 하나를 고를 수 있습니다.`,`곱의 법칙으로 ${regions}개 영역의 선택지 수를 곱합니다.`,'서로 다른 n개에서 중복을 허용해 r개를 순서대로 고르는 경우의 수는 <sub>n</sub>Π<sub>r</sub> = n<sup>r</sup>입니다.'])}`;
+}
+function renderParameters(){
+ $('colorField').hidden=!usesColor(key);
+ $('kField').hidden=!usesK(key);
+ $('kLabel').textContent=key==='times'?'사용 횟수 k':'색상 종류 k';
+ const minimum=key==='times'?0:1;
+ $('k').innerHTML=options(seq(7-minimum).map(i=>[i+minimum,i+minimum]));
+ $('k').value=k;
+}
+function renderReveal(){
+ const show=teacher||explanationOpen;
+ $('conditionExplain').hidden=teacher;
+ $('conditionExplain').setAttribute('aria-expanded',show);
+ $('conditionExplain').textContent=show?'계산 과정 닫기':'계산 과정 보기';
+ $('conditionResult').hidden=!show;
+ if(!show) return;
+ const data=solution(key,n,r,target,k);
+ $('conditionResult').innerHTML=renderSolution(data,null)
+  +`<p class="muted">${data[0]===passing?'공식과 실제 배열 수가 일치합니다.':'검증 오류 · 공식과 실제 배열 수가 다릅니다.'}</p>`;
+}
+function updateCases(){
+ passing=0;
+ evaluated=rows.map(item=>{
+  const pass=matches(item,key,n,r,target,k);
+  if(pass) passing++;
+  return {item,pass};
+ });
+ renderPaint();
+ renderReveal();
+ renderCases();
+}
+function renderGroups(){
+ const grouping=$('group').value;
+ $('groupField').hidden=grouping==='none';
+ const pairs=[['all','모든 그룹']];
+ if(grouping==='first') seq(n).forEach(c=>pairs.push([c,labelColor(c)]));
+ if(grouping==='set'){
+  seq(1<<n).filter(mask=>mask&&pop[mask]<=r).sort((a,b)=>pop[a]-pop[b]||a-b).forEach(mask=>{
+   pairs.push([mask,seq(n).filter(c=>mask&(1<<c)).map(labelColor).join(' + ')]);
+  });
+ }
+ $('groupValue').innerHTML=options(pairs);
+}
+function renderCases(){
+ const grouping=$('group').value, group=$('groupValue').value, only=$('only').checked;
+ const groupId=entry=>grouping==='first'?entry.item.first:entry.item.mask;
+ let list=evaluated;
+ if(only) list=list.filter(entry=>entry.pass);
+ if(grouping!=='none'){
+  list=group==='all'
+   ? [...list].sort((a,b)=>grouping==='set'?(pop[groupId(a)]-pop[groupId(b)]||groupId(a)-groupId(b)):groupId(a)-groupId(b))
+   : list.filter(entry=>groupId(entry)===+group);
+ }
+ const pages=Math.max(1,Math.ceil(list.length/PAGE_SIZE));
+ page=Math.min(pages,Math.max(1,page));
+ $('caseCount').textContent=`전체 ${fmt(rows.length)}가지 중 조건을 만족하는 배열 ${fmt(passing)}가지`;
+ $('cases').innerHTML=list.slice((page-1)*PAGE_SIZE,page*PAGE_SIZE).map(({item,pass},i)=>{
+  const previous=list[(page-1)*PAGE_SIZE+i-1];
+  const newGroup=grouping!=='none'&&(!previous||groupId(previous)!==groupId({item}));
+  const heading=grouping==='first'?labelColor(item.first):seq(n).filter(c=>item.mask&(1<<c)).map(labelColor).join(' + ');
+  return (newGroup?`<h3 style="grid-column:1/-1">${heading}</h3>`:'')
+   +`<div class="case${pass?'':' fail'}" aria-label="${item.id}번 · ${item.a.map(labelColor).join(', ')} · ${pass?'충족':'불충족'}"><small>#${fmt(item.id)} · ${pass?'충족':'불충족'}</small><div class="mini">${item.a.map(chip).join('')}</div></div>`;
+ }).join('')||'<p style="grid-column:1/-1">이 보기에서 표시할 배열이 없습니다.</p>';
+ $('page').value=page;
+ $('page').max=pages;
+ $('pageTotal').textContent=`/ ${fmt(pages)}`;
+ $('prev').disabled=page===1;
+ $('next').disabled=page===pages;
+}
+function treeControls(){
+ $('treeRoot').innerHTML=options([['all','전체'],...seq(n).map(c=>[c,labelColor(c)])]);
+ $('treeRoot').value=root;
+ $('treeDepth').innerHTML=options(seq(r).map(i=>[i+1,`${i+1}단계`]));
+ $('treeDepth').value=depth;
+}
+function renderTree(){
+ const candidates=evaluated.filter(({item})=>root==='all'||item.first===+root);
+ const prefixes=new Map();
+ const sample=new Map();
+ const prefixOf=a=>a.slice(0,depth).join('');
+ const totalPrefixes=(root==='all'?n:1)*n**(depth-1);
+ const stride=Math.ceil(totalPrefixes/216);
+ const rowsPerPrefix=n**(r-depth);
+ let index=0;
+ for(const {item,pass} of candidates){
+  if(pass){
+   for(let d=1;d<=depth;d++) prefixes.set(item.a.slice(0,d).join(''),true);
+  }
+  if(index%(stride*rowsPerPrefix)===0) sample.set(prefixOf(item.a),item.a);
+  index++;
+ }
+ const paintedPrefix=[];
+ for(const color of painted){
+  if(color<0) break;
+  paintedPrefix.push(color);
+ }
+ const own=candidates.find(({item})=>paintedPrefix.length&&paintedPrefix.every((c,i)=>item.a[i]===c));
+ if(own) sample.set(prefixOf(own.item.a),own.item.a);
+ const leaves=[...sample.keys()].sort();
+ const visible=new Map([['', {min:0,max:leaves.length-1}]]);
+ leaves.forEach((leaf,i)=>{
+  for(let d=1;d<=depth;d++){
+   const prefix=leaf.slice(0,d);
+   if(!visible.has(prefix)) visible.set(prefix,{min:i,max:i});
+   else visible.get(prefix).max=i;
+  }
+ });
+ const width=depth*124+72, height=Math.max(112,leaves.length*28+25);
+ const x=prefix=>36+prefix.length*124;
+ const y=prefix=>{
+  const {min,max}=visible.get(prefix);
+  return 26+28*min+14*Math.min(max-min,4);
+ };
+ const myPath=paintedPrefix.join('');
+ const branches=[];
+ const nodes=[];
+ for(const [prefix] of visible){
+  if(!prefix) continue;
+  const parent=prefix.slice(0,-1), c=+prefix.at(-1), fg=palette[c][2];
+  const ownPath=myPath.startsWith(prefix);
+  const opacity=prefixes.has(prefix)?1:.23;
+  const strokeWidth=ownPath?4:1.6;
+  branches.push(`<line class="branch" pathLength="1" x1="${x(parent)}" y1="${y(parent)}" x2="${x(prefix)}" y2="${y(prefix)}" stroke="${fg}" opacity="${opacity}" stroke-width="${strokeWidth}" style="--delay:${(prefix.length-1)*140}ms"/>`);
+  nodes.push(`<g opacity="${opacity}"><circle cx="${x(prefix)}" cy="${y(prefix)}" r="10" fill="${palette[c][1]}" stroke="${fg}" stroke-width="${ownPath?3:1}"/><text x="${x(prefix)}" y="${y(prefix)+4}" text-anchor="middle" fill="${fg}" font-size="11" font-weight="800">${letter(c)}</text><title>${[...prefix].map(i=>labelColor(+i)).join(' → ')}</title></g>`);
+ }
+ $('treeNote').textContent=(leaves.length<totalPrefixes?`표시 한도에 따라 이 깊이의 경로 중 ${leaves.length}개를 펼쳤습니다. 시작 가지나 표시 깊이를 바꿔 보세요. `:'')
+  +`조건을 만족하는 배열로 이어질 수 없는 가지는 흐리게 표시합니다.${paintedPrefix.length&&root!=='all'&&+root!==paintedPrefix[0]?' 내 배열을 보려면 시작 가지를 전체로 바꾸세요.':''}`;
+ $('treeCondition').textContent=description(key);
+ $('treeStep').disabled=depth===r;
+ $('zoomValue').value=Math.round(zoom*100)+'%';
+ $('zoomOut').disabled=zoom<=.5;
+ $('zoomIn').disabled=zoom>=2;
+ const box=$('treeBox'), left=box.scrollLeft, top=box.scrollTop;
+ box.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" width="${width*zoom}" height="${height*zoom}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${depth}단계 색칠 수형도">${branches.join('')}<circle cx="${x('')}" cy="${y('')}" r="13" fill="#6344d0"/><text x="${x('')}" y="${y('')+4}" text-anchor="middle" fill="white" font-size="10">시작</text>${nodes.join('')}</svg>`;
+ box.scrollLeft=left;
+ box.scrollTop=top;
+}
+const missions=[
+ ['색상의 개수가 증가하면 전체 경우의 수는 어떻게 변할까?',()=>`영역 ${r}개를 유지하고 색을 ${n===6?5:n}가지에서 ${Math.min(n+1,6)}가지로 늘리면 전체 경우의 수는 몇 가지일까요?`,
+  ['영역 수를 고정하고 새 팔레트로 한 영역을 색칠해 보세요.','각 영역의 선택지 수가 똑같이 바뀝니다. 영역 수만큼 곱해 보세요.'],
+  ()=>solution('any',Math.min(n+1,6),r,target,k)],
+ ['영역이 한 개 늘어나면 전체 경우의 수는 몇 배가 될까?',()=>`색 ${n}가지를 유지하며 영역을 ${r===6?5:r}개에서 ${r===6?6:r+1}개로 늘리면 몇 배가 될까요?`,
+  ['지금 색칠한 배열에 빈 영역 하나를 붙여 보세요.','기존 배열 하나마다 새 영역에 쓸 수 있는 색의 개수를 세어 보세요.'],
+  ()=>[n,`(${n}<sup>${r===6?6:r+1}</sup>) ÷ (${n}<sup>${r===6?5:r}</sup>)`,[`기존 배열마다 새 영역에 ${n}가지 색을 붙일 수 있습니다.`,`따라서 전체 경우의 수는 ${n}배가 됩니다.`],'배']],
+ ['모든 영역이 같은 색인 경우를 제외하면 몇 가지일까?',()=>`현재 ${n}가지 색과 ${r}개 영역에서 한 가지 색만 사용한 배열을 빼 보세요.`,
+  ['모든 영역이 빨강인 배열은 몇 개인가요?','한 가지 색만 쓰는 배열을 색마다 하나씩 세어 전체에서 빼 보세요.'],
+  ()=>solution('two',n,r,target,k)],
+ ['이웃한 영역의 색이 서로 다를 때 어떤 규칙이 나타날까?',()=>`현재 ${n}가지 색과 ${r}개 영역에서 이웃한 색이 모두 다른 배열은 몇 가지일까요?`,
+  ['두 번째 영역에서 쓸 수 없는 색을 찾아보세요.','첫 영역 이후에는 바로 앞에서 쓴 색 하나만 빼면 됩니다.'],
+  ()=>solution('adjacent',n,r,target,k)],
+ ['특정 색상을 적어도 한 번 사용한 경우의 수는 어떻게 계산할까?',()=>`현재 설정에서 ${labelColor(target)}을(를) 적어도 한 번 쓰는 배열을 세어 보세요.`,
+  ['특정 색을 한 번도 쓰지 않는 배열을 먼저 떠올려 보세요.','그 색을 제외한 팔레트로 만든 모든 배열을 전체에서 빼 보세요.'],
+  ()=>solution('include',n,r,target,k)],
+ ['정확히 두 가지 색만 사용한 경우의 수는 어떻게 계산할까?',()=>`현재 ${n}가지 색 중 정확히 두 가지를 사용하는 ${r}칸 배열을 세어 보세요.`,
+  ['먼저 어떤 두 색을 쓸지 정해 보세요.','두 색으로 만든 배열에서 한 가지 색으로만 채운 두 배열을 빼 보세요.'],
+  ()=>solution('exact',n,r,target,2)]
+];
+function renderMission(loadInputs=false){
+ const [title,prompt,hints,solve]=missions[mission], state=missionStates[mission];
+ $('missionButtons').innerHTML=missions.map((_,i)=>`<button data-mission="${i}" aria-pressed="${i===mission}">미션 ${i+1}</button>`).join('');
+ $('missionTitle').textContent=title;
+ $('missionPrompt').textContent=prompt();
+ if(loadInputs){
+  $('missionThought').value=state.thought;
+  $('missionGuess').value=state.guess;
+ }
+ $('hint').disabled=state.hints===hints.length;
+ $('hint').textContent=state.hints===hints.length?'힌트 모두 보기 완료':`힌트 ${state.hints+1} 보기`;
+ $('hints').innerHTML=state.hints?steps(hints.slice(0,state.hints)):'';
+ $('missionResult').hidden=!(teacher||state.answer);
+ if(teacher||state.answer){
+  const data=solve();
+  $('missionResult').innerHTML=renderSolution(data,state.answer?+state.guess:null);
+ }
+}
+function showTab(next){
+ tab=next;
+ document.querySelectorAll('[role="tab"]').forEach(button=>{
+  const selected=button.getAttribute('aria-controls')===tab;
+  button.setAttribute('aria-selected',selected);
+  button.tabIndex=selected?0:-1;
+  $(button.getAttribute('aria-controls')).hidden=!selected;
+ });
+ if(tab==='tree') renderTree();
+ if(tab==='missions') renderMission(true);
+}
+function resetMissionAnswers(){
+ for(const state of missionStates){state.answer=false;state.guess='';}
+ renderMission(true);
+}
+function updateSettings(){
+ n=+$('colors').value;
+ r=+$('regions').value;
+ painted=seq(r).map(i=>painted[i]>=0&&painted[i]<n?painted[i]:-1);
+ if(active>=n) active=0;
+ if(target>=n) target=0;
+ if(root!=='all'&&+root>=n) root='all';
+ depth=Math.min(r,depth);
+ $('targetColor').innerHTML=colorOptions();
+ $('targetColor').value=target;
+ rows=enumerate(n,r);
+ page=1;
+ $('totalCount').textContent=`${fmt(rows.length)}가지`;
+ explanationOpen=false;
+ resetProblem();
+ resetMissionAnswers();
+ renderParameters();
+ renderGroups();
+ treeControls();
+ renderPrinciple();
+ updateCases();
+ showTab(tab);
+}
+function setMode(value){
+ teacher=value;
+ $('teacher').setAttribute('aria-pressed',teacher);
+ $('student').setAttribute('aria-pressed',!teacher);
+ $('fullscreen').hidden=!teacher||!document.fullscreenEnabled;
+ renderPrinciple();
+ renderReveal();
+ renderCases();
+ renderMission();
+}
+$('colors').innerHTML=$('regions').innerHTML=options(seq(5).map(i=>[i+2,`${i+2}개`]));
+$('colors').value=n;
+$('regions').value=r;
+$('condition').innerHTML=options(conditions);
+$('colors').onchange=$('regions').onchange=updateSettings;
+$('palette').onclick=event=>{
+ const button=event.target.closest('[data-color]');
+ if(!button) return;
+ active=+button.dataset.color;
+ renderPaint();
+ $('palette').querySelector(`[data-color="${active}"]`).focus();
+};
+$('board').onclick=event=>{
+ const button=event.target.closest('[data-slot]');
+ if(!button) return;
+ setPaint(+button.dataset.slot,active);
+ $('board').querySelector(`[data-slot="${button.dataset.slot}"]`).focus();
+};
+$('clear').onclick=()=>{painted.fill(-1);renderPaint();};
+$('random').onclick=()=>{painted=seq(r).map(()=>Math.floor(Math.random()*n));renderPaint();};
+$('principleForm').onsubmit=event=>{event.preventDefault();principleGuess=+$('principleGuess').value;renderPrinciple();};
+function resetProblem(){
+ principleGuess=null;
+ hintOpen=false;
+ $('principleGuess').value='';
+}
+$('nextProblem').onclick=()=>{
+ problem=(problem+1)%problems.length;
+ resetProblem();
+ renderPrinciple();
+};
+$('principleHint').onclick=()=>{hintOpen=!hintOpen;renderPrinciple();};
+$('conditionExplain').onclick=()=>{explanationOpen=!explanationOpen;renderReveal();};
+$('condition').onchange=()=>{
+ key=$('condition').value;
+ k=parameter(key);
+ explanationOpen=false;
+ page=1;
+ renderParameters();
+ updateCases();
+};
+$('tryAdjacent').onclick=()=>{
+ $('condition').value='adjacent';
+ $('condition').onchange();
+ $('condition').focus();
+};
+$('targetColor').onchange=$('k').onchange=()=>{
+ const previous=target;
+ target=+$('targetColor').value;
+ if(key==='exact') k=exactK=+$('k').value;
+ if(key==='times') k=timesK=+$('k').value;
+ page=1;
+ if(previous!==target){
+  missionStates[4].guess='';
+  missionStates[4].answer=false;
+ }
+ updateCases();
+};
+$('group').onchange=()=>{page=1;renderGroups();renderCases();};
+$('groupValue').onchange=$('only').onchange=()=>{page=1;renderCases();};
+$('prev').onclick=()=>{page--;renderCases();};
+$('next').onclick=()=>{page++;renderCases();};
+$('page').onchange=()=>{page=Math.trunc(+$('page').value)||1;renderCases();};
+$('teacher').onclick=()=>setMode(true);
+$('student').onclick=()=>setMode(false);
+$('fullscreen').onclick=async()=>{
+ try{
+  if(document.fullscreenElement) await document.exitFullscreen();
+  else await document.documentElement.requestFullscreen();
+ }catch{ $('fullscreen').textContent='전체 화면 다시 시도'; }
+};
+document.addEventListener('fullscreenchange',()=>{$('fullscreen').textContent=document.fullscreenElement?'전체 화면 종료':'전체 화면';});
+const tabs=[...document.querySelectorAll('[role="tab"]')];
+tabs.forEach((button,i)=>{
+ button.onclick=()=>showTab(button.getAttribute('aria-controls'));
+ button.onkeydown=event=>{
+  const next={ArrowDown:(i+1)%tabs.length,ArrowRight:(i+1)%tabs.length,ArrowUp:(i+tabs.length-1)%tabs.length,ArrowLeft:(i+tabs.length-1)%tabs.length,Home:0,End:tabs.length-1}[event.key];
+  if(next===undefined) return;
+  event.preventDefault();
+  tabs[next].click();
+  tabs[next].focus();
+ };
+});
+$('treeRoot').onchange=()=>{root=$('treeRoot').value;renderTree();};
+$('treeDepth').onchange=()=>{depth=+$('treeDepth').value;renderTree();};
+$('treeStep').onclick=()=>{depth=Math.min(r,depth+1);$('treeDepth').value=depth;renderTree();};
+$('treePlay').onclick=renderTree;
+$('zoomOut').onclick=()=>{zoom=Math.max(.5,zoom-.25);renderTree();};
+$('zoomIn').onclick=()=>{zoom=Math.min(2,zoom+.25);renderTree();};
+$('missionButtons').onclick=event=>{
+ const button=event.target.closest('[data-mission]');
+ if(!button) return;
+ mission=+button.dataset.mission;
+ renderMission(true);
+ $('missionButtons').querySelector(`[data-mission="${mission}"]`).focus();
+};
+$('missionThought').oninput=()=>{missionStates[mission].thought=$('missionThought').value;};
+$('missionGuess').oninput=()=>{missionStates[mission].guess=$('missionGuess').value;missionStates[mission].answer=false;$('missionResult').hidden=!teacher;};
+$('hint').onclick=()=>{missionStates[mission].hints++;renderMission();};
+$('missionForm').onsubmit=event=>{event.preventDefault();missionStates[mission].answer=true;renderMission();};
+updateSettings();
+</script>
+</body>
+</html>
